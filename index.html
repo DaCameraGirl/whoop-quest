@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WHOOP Quest 💖</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#faf5ff; --card:#fff; --text:#1a1230; --muted:#8878a3;
+    --pink:#ff4f9a; --pink-soft:#ffe8f2; --green:#34a853; --yellow:#fbbc04; --red:#ea4335;
+    --blue:#4285f4; --purple:#9c27b0; --border:#e8dff2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  header{text-align:center;padding:28px 16px 16px}
+  header h1{font-size:1.8rem} header h1 span{color:var(--pink)}
+  header p{color:var(--muted);font-size:.9rem;margin-top:4px}
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px 60px}
+  .hero{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+  @media(max-width:680px){.hero{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:0 2px 16px rgba(180,140,220,.07)}
+  .buddy{text-align:center}
+  .buddy-emoji{font-size:5.5rem;line-height:1.1;filter:drop-shadow(0 6px 18px rgba(255,79,154,.18));transition:transform .3s}
+  .buddy-emoji:hover{transform:scale(1.06) rotate(-3deg)}
+  .buddy-name{font-weight:700;font-size:1.15rem;margin-top:6px}
+  .buddy-rank{color:var(--pink);font-weight:600;font-size:.9rem}
+  .stat-bars{margin-top:16px;text-align:left}
+  .sbar{margin-bottom:10px}
+  .sbar label{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:3px;color:var(--muted)}
+  .sbar label strong{color:var(--text)}
+  .bar-bg{background:#f0e8f8;border-radius:99px;height:10px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:99px;transition:width .6s ease}
+  .bar-hp{background:linear-gradient(90deg,#34a853,#5cdb7a)}
+  .bar-energy{background:linear-gradient(90deg,#4285f4,#6fa8ff)}
+  .bar-calm{background:linear-gradient(90deg,#9c27b0,#d46fff)}
+  .bar-power{background:linear-gradient(90deg,#ff4f9a,#ffb0d4)}
+  .xp-row{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:.85rem;color:var(--muted)}
+  .xp-bar{flex:1;background:#f0e8f8;border-radius:99px;height:8px;overflow:hidden}
+  .xp-fill{height:100%;background:linear-gradient(90deg,#ff4f9a,#ffb86b);border-radius:99px;transition:width .6s}
+  .today-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .today-stat{background:#fcf7ff;border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+  .today-stat .v{font-size:1.4rem;font-weight:700}
+  .today-stat .k{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  .good{color:var(--green)} .mid{color:#c89600} .bad{color:var(--red)}
+  .streaks{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .streak-pill{background:var(--pink-soft);color:#c12a6b;border-radius:99px;padding:5px 12px;font-size:.8rem;font-weight:600}
+  .timeline{margin-top:14px;max-height:190px;overflow-y:auto;font-size:.82rem}
+  .tl-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f3ebfa}
+  .tl-row:last-child{border:none}
+  .tl-date{width:72px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .dot-g{background:var(--green)} .dot-y{background:var(--yellow)} .dot-r{background:var(--red)} .dot-nd{background:#ddd}
+  .tl-val{margin-left:auto;font-variant-numeric:tabular-nums;color:#555}
+  .section{margin-top:24px}
+  .section h2{font-size:1.05rem;margin-bottom:12px}
+  .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+  .chart-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+  .chart-box h3{font-size:.92rem;text-align:center;margin-bottom:10px}
+  .chart-wrap{position:relative;height:230px}
+  .footer{text-align:center;color:#b49dc8;font-size:.78rem;margin-top:40px}
+  button.pink{background:var(--pink);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-weight:600;cursor:pointer;font-size:.85rem}
+  button.pink:hover{filter:brightness(1.06)}
+  .muted{color:var(--muted);font-size:.82rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>WHOOP Quest <span>💖</span></h1>
+  <p id="subtitle">Loading your WHOOP stats…</p>
+</header>
+
+<div class="wrap">
+
+<div class="hero">
+  <!-- Left: Buddy -->
+  <div class="card buddy">
+    <div class="buddy-emoji" id="buddyEmoji">😴</div>
+    <div class="buddy-name" id="buddyName">Chee</div>
+    <div class="buddy-rank" id="buddyRank">Rank 1 · Sprout</div>
+    <div class="stat-bars">
+      <div class="sbar"><label><span>❤️ HP (Recovery)</span><strong id="hpLabel">—</strong></label><div class="bar-bg"><div class="bar-fill bar-hp" id="hpBar" style="width:0%"></div></div></div>
+      <div class="sbar"><label><span>💤 Energy (Sleep)</span><strong id="energyLabel">—</strong></label><div class="bar-bg"><div class="bar-fill bar-energy" id="energyBar" style="width:0%"></div></div></div>
+      <div class="sbar"><label><span>⚡ Calm (RHR)</span><strong id="calmLabel">—</strong></label><div class="bar-bg"><div class="bar-fill bar-calm" id="calmBar" style="width:0%"></div></div></div>
+      <div class="sbar"><label><span>✨ Power (HRV)</span><strong id="powerLabel">—</strong></label><div class="bar-bg"><div class="bar-fill bar-power" id="powerBar" style="width:0%"></div></div></div>
+    </div>
+    <div class="xp-row"><span>LVL <b id="levelNum">1</b></span><div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div><span id="xpText">0 / 100 XP</span></div>
+    <p class="muted" style="margin-top:10px" id="buddyMood">Waking up…</p>
+  </div>
+
+  <!-- Right: Today + timeline -->
+  <div class="card">
+    <h2 style="font-size:1rem;margin-bottom:10px">Today's Stats</h2>
+    <div class="today-grid" id="todayGrid"></div>
+    <div class="streaks" id="streaks"></div>
+    <div style="margin-top:14px">
+      <strong style="font-size:.85rem">Recent days</strong>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="section">
+  <h2>Your WHOOP — Jun 21 → Jul 14</h2>
+  <div class="charts">
+    <div class="chart-box"><h3>Sleep Stages</h3><div class="chart-wrap"><canvas id="sleepChart"></canvas></div></div>
+    <div class="chart-box"><h3>Recovery Distribution</h3><div class="chart-wrap"><canvas id="recoveryChart"></canvas></div></div>
+    <div class="chart-box"><h3>Workout Types</h3><div class="chart-wrap"><canvas id="workoutChart"></canvas></div></div>
+  </div>
+</div>
+
+<!-- Full table -->
+<div class="card section" style="overflow-x:auto">
+  <h2 style="margin-bottom:10px">Full Log</h2>
+  <table id="logTable" style="width:100%;border-collapse:collapse;font-size:.82rem">
+    <thead><tr style="color:#777"><th style="text-align:left;padding:6px 10px">Date</th><th>Recovery</th><th>RHR</th><th>HRV</th><th>Sleep</th><th>Perf</th><th>Workout</th></tr></thead>
+    <tbody id="logBody"></tbody>
+  </table>
+</div>
+
+<div class="footer">
+  WHOOP Quest · built for Angela · data auto-syncs daily from WHOOP API<br>
+  <a href="https://github.com/DaCameraGirl/whoop-quest" style="color:#b49dc8">github.com/DaCameraGirl/whoop-quest</a>
+</div>
+
+</div>
+
+<script>
+(async function(){
+  const res = await fetch('data/whoop.json');
+  const D = await res.json();
+
+  // Build lookup maps
+  const recMap = Object.fromEntries(D.recovery.map(r => [r.date, r]));
+  const sleepMap = Object.fromEntries(D.sleep.map(s => [s.date, s]));
+  const workoutMap = {};
+  D.workouts.forEach(w => { (workoutMap[w.date] = workoutMap[w.date] || []).push(w); });
+
+  const dates = [...new Set([...D.recovery.map(r=>r.date), ...D.sleep.map(s=>s.date)])].sort();
+  const latest = dates[dates.length-1];
+  const today = recMap[latest] || D.recovery[D.recovery.length-1];
+  const todaySleep = sleepMap[latest] || D.sleep.find(s => s.date === latest.split('T')[0]);
+
+  // --- Buddy stats from latest day ---
+  const hp = today.score;
+  const rhr = today.rhr;
+  const hrv = today.hrv;
+  const sleepH = todaySleep ? todaySleep.hours : 0;
+  const sleepPerf = todaySleep ? todaySleep.performance : 0;
+
+  // HP bar = recovery %
+  document.getElementById('hpBar').style.width = hp + '%';
+  document.getElementById('hpLabel').textContent = hp + '%';
+  // Energy = sleep hours scaled 0-10h
+  const energyPct = Math.min(100, sleepH / 9 * 100);
+  document.getElementById('energyBar').style.width = energyPct + '%';
+  document.getElementById('energyLabel').textContent = sleepH.toFixed(1) + 'h';
+  // Calm = inverse RHR (55-90 bpm range → 100-0%)
+  const calmPct = Math.max(0, Math.min(100, (90 - rhr) / 35 * 100));
+  document.getElementById('calmBar').style.width = calmPct + '%';
+  document.getElementById('calmLabel').textContent = rhr + ' bpm';
+  // Power = HRV scaled (10-70 ms → 0-100%)
+  const powerPct = Math.max(0, Math.min(100, (hrv - 10) / 60 * 100));
+  document.getElementById('powerBar').style.width = powerPct + '%';
+  document.getElementById('powerLabel').textContent = hrv.toFixed(1) + ' ms';
+
+  // XP = sum of all recovery scores + workout strain*10
+  let totalXP = D.recovery.reduce((a,r)=>a+r.score,0);
+  D.workouts.forEach(w => { totalXP += (w.strain||0) * 10; });
+  totalXP = Math.round(totalXP);
+  const level = Math.floor(totalXP / 500) + 1;
+  const xpInLevel = totalXP % 500;
+  document.getElementById('levelNum').textContent = level;
+  document.getElementById('xpFill').style.width = (xpInLevel/500*100) + '%';
+  document.getElementById('xpText').textContent = xpInLevel + ' / 500 XP';
+
+  const ranks = ['Sprout','Bloom','Vigor','Radiant','Zen Master','Legend','WHOOP Queen'];
+  const rankName = ranks[Math.min(level-1, ranks.length-1)];
+  document.getElementById('buddyRank').textContent = `Rank ${level} · ${rankName}`;
+
+  // Buddy mood + emoji based on latest recovery
+  const buddyEmoji = document.getElementById('buddyEmoji');
+  const buddyMood = document.getElementById('buddyMood');
+  if (hp >= 67) { buddyEmoji.textContent = '😸'; buddyMood.textContent = "Feeling amazing! Let's gooo!"; }
+  else if (hp >= 34) { buddyEmoji.textContent = '😌'; buddyMood.textContent = "Steady vibes, doing great 💖"; }
+  else { buddyEmoji.textContent = '😴'; buddyMood.textContent = "Rest day mode — cozy time 🛋️"; }
+
+  // Today grid
+  const cls = v => v >= 67 ? 'good' : v >= 34 ? 'mid' : 'bad';
+  document.getElementById('todayGrid').innerHTML = `
+    <div class="today-stat"><div class="v ${cls(hp)}">${hp}%</div><div class="k">Recovery</div></div>
+    <div class="today-stat"><div class="v">${sleepH.toFixed(1)}h</div><div class="k">Sleep</div></div>
+    <div class="today-stat"><div class="v">${rhr}</div><div class="k">RHR bpm</div></div>
+    <div class="today-stat"><div class="v">${hrv.toFixed(1)}</div><div class="k">HRV ms</div></div>
+  `;
+  document.getElementById('subtitle').textContent = `Angela · latest: ${latest} · ${hp}% recovery · ${D.recovery.length} days tracked`;
+
+  // Streaks
+  let greenStreak = 0;
+  for (let i = D.recovery.length - 1; i >= 0; i--) {
+    if (D.recovery[i].score >= 67) greenStreak++; else break;
+  }
+  const totalGreen = D.recovery.filter(r => r.score >= 67).length;
+  const avgRec = Math.round(D.recovery.reduce((a,r)=>a+r.score,0) / D.recovery.length);
+  document.getElementById('streaks').innerHTML = `
+    <span class="streak-pill">🔥 ${greenStreak} day green streak</span>
+    <span class="streak-pill">💚 ${totalGreen} green days total</span>
+    <span class="streak-pill">📈 ${avgRec}% avg recovery</span>
+    <span class="streak-pill">💪 ${D.workouts.length} workouts</span>
+  `;
+
+  // Timeline (last 14 days)
+  const recent = D.recovery.slice(-14).reverse();
+  document.getElementById('timeline').innerHTML = recent.map(r => {
+    const c = r.score >= 67 ? 'dot-g' : r.score >= 34 ? 'dot-y' : 'dot-r';
+    return `<div class="tl-row"><span class="tl-date">${r.date.slice(5)}</span><span class="tl-dot ${c}"></span><span>${r.score}% recovery · ${r.rhr} bpm</span><span class="tl-val">${r.hrv.toFixed(0)} ms HRV</span></div>`;
+  }).join('');
+
+  // Log table
+  const allDates = [...new Set([...D.recovery.map(r=>r.date), ...D.sleep.map(s=>s.date)])].sort().reverse();
+  const logRows = allDates.map(date => {
+    const rec = recMap[date];
+    const sl = sleepMap[date];
+    const wks = workoutMap[date] || [];
+    if (!rec) return `<tr><td>${date}</td><td colspan="6" class="no-data" style="padding:8px 14px">no data</td></tr>`;
+    const rc = rec.score >= 67 ? 'badge-green' : rec.score >= 34 ? 'badge-yellow' : 'badge-red';
+    const wkTxt = wks.length ? wks.map(w=>`${w.sport} (${w.strain.toFixed(1)})`).join(', ') : '<span style="color:#ccc">—</span>';
+    return `<tr><td>${date}</td><td class="${rc}">${rec.score}%</td><td>${rec.rhr}</td><td>${rec.hrv.toFixed(1)}</td><td>${sl ? sl.hours.toFixed(1)+'h' : '—'}</td><td>${sl ? sl.performance+'%' : '—'}</td><td style="font-size:.78rem;color:#777">${wkTxt}</td></tr>`;
+  }).join('');
+  document.getElementById('logBody').innerHTML = logRows;
+
+  // --- Charts ---
+  // Aggregate sleep stages from WHOOP API totals (from our earlier export)
+  // Light 77.82h, REM 25.45h, SWS 27.08h, Awake 21.75h
+  new Chart(document.getElementById('sleepChart'), {
+    type: 'pie',
+    data: { labels: ['Light', 'REM', 'Slow Wave', 'Awake'],
+      datasets: [{ data: [77.82, 25.45, 27.08, 21.75],
+      backgroundColor: ['#4285f4','#9c27b0','#0f9d58','#9e9e9e'], borderWidth: 0 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:11, padding:10, font:{size:11}}}}} }
+  });
+
+  // Recovery distribution
+  const green = D.recovery.filter(r => r.score >= 67).length;
+  const yellow = D.recovery.filter(r => r.score >= 34 && r.score < 67).length;
+  const red = D.recovery.filter(r => r.score < 34).length;
+  new Chart(document.getElementById('recoveryChart'), {
+    type: 'pie',
+    data: { labels: ['Green 67-100%', 'Yellow 34-66%', 'Red 0-33%'],
+      datasets: [{ data: [green, yellow, red],
+      backgroundColor: ['#34a853','#fbbc04','#ea4335'], borderWidth: 0 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:11, padding:10, font:{size:11}}}}} }
+  });
+
+  // Workouts
+  const wc = {};
+  D.workouts.forEach(w => { wc[w.sport] = (wc[w.sport]||0) + 1; });
+  new Chart(document.getElementById('workoutChart'), {
+    type: 'pie',
+    data: { labels: Object.keys(wc), datasets: [{ data: Object.values(wc),
+      backgroundColor: ['#ff4f9a','#ff9dc8','#ffcbe6','#ff6fb4'], borderWidth: 0 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:11, padding:10, font:{size:11}}}}} }
+  });
+
+})();
+</script>
+</body>
+</html>
