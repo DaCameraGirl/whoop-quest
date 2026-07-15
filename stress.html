@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stress Analysis — WHOOP Quest 💖</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#faf5ff; --card:#fff; --text:#1a1230; --muted:#8878a3;
+    --pink:#ff4f9a; --pink-soft:#ffe8f2; --green:#34a853; --yellow:#fbbc04; --red:#ea4335;
+    --blue:#4285f4; --purple:#9c27b0; --border:#e8dff2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  header{text-align:center;padding:28px 16px 8px}
+  header h1{font-size:1.6rem} header h1 span{color:var(--pink)}
+  header p{color:var(--muted);font-size:.9rem;margin-top:4px}
+  nav{text-align:center;padding:8px 16px 16px}
+  nav a{display:inline-block;margin:0 8px;padding:6px 16px;border-radius:99px;font-size:.85rem;font-weight:600;text-decoration:none}
+  nav a.active{background:var(--pink);color:#fff}
+  nav a:not(.active){background:#fff;border:1px solid var(--border);color:var(--text)}
+  nav a:not(.active):hover{background:var(--pink-soft)}
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px 60px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:0 2px 16px rgba(180,140,220,.07);margin-bottom:20px}
+  .legend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:12px}
+  .legend-item{background:#fcf7ff;border:1px solid var(--border);border-radius:12px;padding:14px}
+  .legend-item h4{font-size:.88rem;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .legend-item p{font-size:.78rem;color:#5a4a6b;line-height:1.45}
+  .legend-item .scale{font-size:.72rem;color:var(--muted);margin-top:6px}
+  .badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.72rem;font-weight:600}
+  .b-green{background:#e6f4ea;color:#137333}
+  .b-yellow{background:#fef7e0;color:#b06000}
+  .b-red{background:#fce8e6;color:#c5221f}
+  .b-blue{background:#e8f0fe;color:#1967d2}
+  .b-purple{background:#f3e8fd;color:#7b1fa2}
+  .section h2{font-size:1.05rem;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:.82rem}
+  th{text-align:left;padding:8px 10px;color:#777;font-weight:600;border-bottom:2px solid var(--border)}
+  td{padding:7px 10px;border-bottom:1px solid #f3ebfa}
+  tr:hover td{background:#fcf7ff}
+  .good{color:var(--green);font-weight:600}
+  .mid{color:#c89600;font-weight:600}
+  .bad{color:var(--red);font-weight:600}
+  .chart-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:18px}
+  .chart-box h3{font-size:.92rem;text-align:center;margin-bottom:10px}
+  .chart-wrap{position:relative;height:260px}
+  .chart-wrap-tall{position:relative;height:320px}
+  .compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:12px}
+  .compare-card{background:#fcf7ff;border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
+  .compare-card .period{font-size:.78rem;color:var(--muted);margin-bottom:6px}
+  .compare-card .label{font-size:.72rem;color:#777;text-transform:uppercase;letter-spacing:.03em;margin-top:8px}
+  .compare-card .big{font-size:1.5rem;font-weight:700}
+  .compare-card.escape{border-color:#ffc0db;background:#fff5f9}
+  .callout{background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:14px;font-size:.84rem;line-height:1.5;color:#5d4037;margin-top:14px}
+  .callout strong{color:#bf360c}
+  .footer{text-align:center;color:#b49dc8;font-size:.78rem;margin-top:40px}
+  .muted{color:var(--muted);font-size:.82rem}
+  .stress-high{color:var(--red);font-weight:600}
+  .stress-mid{color:#c89600;font-weight:600}
+  .stress-low{color:var(--green);font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1>Stress Analysis <span>📊</span></h1>
+  <p>Escape Weekend: Sat Jul 11 – Wed Jul 15, 2026 vs. prior 3 weekends</p>
+</header>
+<nav>
+  <a href="./index.html">🏠 Dashboard</a>
+  <a href="./stress.html" class="active">📊 Stress Analysis</a>
+</nav>
+
+<div class="wrap">
+
+<!-- LEGEND -->
+<div class="card">
+  <h2 style="font-size:1.05rem;margin-bottom:4px">📖 How to read your WHOOP stress signals</h2>
+  <p class="muted">Each metric tells you something different about how stressed / recovered your body is. Here's what to look for:</p>
+  <div class="legend-grid">
+    <div class="legend-item">
+      <h4>❤️ Recovery %</h4>
+      <p>Your overall readiness score. Combines HRV, RHR, sleep, and strain into one number. This is the single best stress indicator.</p>
+      <div class="scale">
+        <span class="badge b-green">67–100% Green</span>
+        <span class="badge b-yellow">34–66% Yellow</span>
+        <span class="badge b-red">0–33% Red</span>
+      </div>
+      <p style="margin-top:6px"><strong>Stress signal:</strong> Sustained red/yellow = your body is struggling. A sharp drop (e.g. 96% → 28%) = acute stress event.</p>
+    </div>
+    <div class="legend-item">
+      <h4>⚡ HRV (Heart Rate Variability)</h4>
+      <p>Measures the variation in time between heartbeats (in milliseconds). Higher = your nervous system is balanced and recovering well.</p>
+      <div class="scale">
+        <span class="badge b-green">40+ ms Good</span>
+        <span class="badge b-yellow">20–40 ms OK</span>
+        <span class="badge b-red">&lt;20 ms Low</span>
+      </div>
+      <p style="margin-top:6px"><strong>Stress signal:</strong> HRV crashes under acute stress. A drop of 20+ ms overnight is a big red flag. Yours crashed from 61.2 → 15.1 ms after the roommate incident.</p>
+    </div>
+    <div class="legend-item">
+      <h4>🫀 RHR (Resting Heart Rate)</h4>
+      <p>Your heart rate while sleeping, in beats per minute. Lower = calmer, better recovered. Rises when your body is fighting stress, illness, or poor sleep.</p>
+      <div class="scale">
+        <span class="badge b-green">60–70 bpm Good</span>
+        <span class="badge b-yellow">71–78 bpm OK</span>
+        <span class="badge b-red">79+ bpm Elevated</span>
+      </div>
+      <p style="margin-top:6px"><strong>Stress signal:</strong> RHR spikes 5+ bpm above your baseline = stress / poor recovery. Yours spiked to 83 bpm the morning after the roommate incident (baseline ~74).</p>
+    </div>
+    <div class="legend-item">
+      <h4>💤 Sleep Duration</h4>
+      <p>Total time asleep. WHOOP tracks actual sleep, not just time in bed.</p>
+      <div class="scale">
+        <span class="badge b-green">7–9h Good</span>
+        <span class="badge b-yellow">5–7h OK</span>
+        <span class="badge b-red">&lt;5h Low</span>
+      </div>
+      <p style="margin-top:6px"><strong>Stress signal:</strong> Stress causes fragmented sleep, trouble falling asleep, early waking. Look for nights under 5h or big swings.</p>
+    </div>
+    <div class="legend-item">
+      <h4>🎯 Sleep Performance</h4>
+      <p>How much sleep you got vs. how much your body needed. 100% = you met your full sleep need.</p>
+      <div class="scale">
+        <span class="badge b-green">70%+ Good</span>
+        <span class="badge b-yellow">50–69% OK</span>
+        <span class="badge b-red">&lt;50% Low</span>
+      </div>
+      <p style="margin-top:6px"><strong>Stress signal:</strong> Low performance = sleep debt building. Under 50% repeatedly = cumulative stress.</p>
+    </div>
+    <div class="legend-item">
+      <h4>🔔 Sleep Disturbances</h4>
+      <p>Number of times you woke up during the night. More disturbances = more fragmented, less restorative sleep.</p>
+      <div class="scale">
+        <span class="badge b-green">0–7 Low</span>
+        <span class="badge b-yellow">8–12 Mid</span>
+        <span class="badge b-red">13+ High</span>
+      </div>
+      <p style="margin-top:6px"><strong>Stress signal:</strong> Anxiety and stress cause frequent waking. A jump in disturbances often precedes a recovery crash.</p>
+    </div>
+    <div class="legend-item">
+      <h4>💪 Strain</h4>
+      <p>Cardiovascular load for the day, 0–21 scale. Physical activity + life stress both contribute.</p>
+      <div class="scale">
+        <span class="badge b-blue">0–9 Light</span>
+        <span class="badge b-yellow">10–13 Moderate</span>
+        <span class="badge b-red">14+ High</span>
+      </div>
+      <p style="margin-top:6px"><strong>Stress signal:</strong> High strain + low recovery = overreaching. Emotional stress also drives strain up even without exercise.</p>
+    </div>
+    <div class="legend-item">
+      <h4>📊 Putting it together</h4>
+      <p><strong>Acute stress signature:</strong> Recovery crashes, HRV drops sharply, RHR spikes, sleep fragments (more disturbances), sleep performance drops.</p>
+      <p style="margin-top:6px"><strong>Chronic stress signature:</strong> Recovery stuck yellow/red for days, HRV suppressed below baseline, RHR elevated, sleep debt accumulating.</p>
+      <p style="margin-top:6px"><strong>Recovery signature:</strong> Recovery climbs back to green, HRV rebounds, RHR drops, sleep stabilizes and deepens.</p>
+    </div>
+  </div>
+</div>
+
+<!-- WEEKEND COMPARISON -->
+<div class="card">
+  <h2>Weekend Comparison — Sat through Wed</h2>
+  <p class="muted">Comparing your Escape Weekend (Jul 11–15) against the prior 3 weekends. Same days of week, apples to apples.</p>
+  
+  <div style="overflow-x:auto;margin-top:14px">
+  <table>
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th>Recovery</th>
+        <th>HRV</th>
+        <th>RHR</th>
+        <th>Sleep/night</th>
+        <th>Sleep Perf</th>
+        <th>Disturbances</th>
+        <th>Strain</th>
+      </tr>
+    </thead>
+    <tbody id="compareTableBody"></tbody>
+  </table>
+  </div>
+
+  <div class="callout" id="stressCallout"></div>
+</div>
+
+<!-- CHARTS -->
+<div class="chart-box">
+  <h3>Recovery % — Weekend by Weekend</h3>
+  <div class="chart-wrap-tall"><canvas id="recoveryCompareChart"></canvas></div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px">
+  <div class="chart-box">
+    <h3>HRV (ms) — Stress Indicator</h3>
+    <div class="chart-wrap"><canvas id="hrvChart"></canvas></div>
+    <p class="muted" style="text-align:center;margin-top:8px;font-size:.75rem">Higher = better recovery · Lower = stress</p>
+  </div>
+  <div class="chart-box">
+    <h3>Sleep Duration (hours)</h3>
+    <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
+    <p class="muted" style="text-align:center;margin-top:8px;font-size:.75rem">Time actually asleep per night</p>
+  </div>
+</div>
+
+<!-- DAY-BY-DAY ESCAPE WEEKEND -->
+<div class="card">
+  <h2>Escape Weekend — Day by Day</h2>
+  <p class="muted">Saturday Jul 11 – Wednesday Jul 15, 2026</p>
+  <div style="overflow-x:auto;margin-top:14px">
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th><th>Day</th><th>Recovery</th><th>HRV</th><th>RHR</th><th>Sleep</th><th>Perf</th><th>Disturb</th><th>Strain</th><th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="escapeTableBody"></tbody>
+  </table>
+  </div>
+  <p class="muted" style="margin-top:10px;font-size:.75rem">Jul 13 — no WHOOP data recorded (device not worn / no sleep detected)</p>
+</div>
+
+<div class="footer">
+  WHOOP Quest — Stress Analysis · built for Angela · <a href="./index.html" style="color:#b49dc8">← back to dashboard</a><br>
+  <a href="https://github.com/DaCameraGirl/whoop-quest" style="color:#b49dc8">github.com/DaCameraGirl/whoop-quest</a>
+</div>
+
+</div>
+
+<script>
+(async function(){
+  let D;
+  try {
+    const res = await fetch('./data/whoop.json', {cache: 'no-cache'});
+    D = await res.json();
+  } catch(e) {
+    document.body.insertAdjacentHTML('afterbegin', '<div style="background:#fce8e6;color:#c5221f;padding:12px;text-align:center;font-size:.85rem">Could not load data/whoop.json — using embedded fallback</div>');
+    // Fallback minimal data so page still renders
+    D = {recovery:[], sleep:[], workouts:[]};
+  }
+
+  const recMap = Object.fromEntries(D.recovery.map(r => [r.date, r]));
+  const sleepMap = Object.fromEntries(D.sleep.map(s => [s.date, s]));
+  const workoutMap = {};
+  D.workouts.forEach(w => { (workoutMap[w.date] = workoutMap[w.date] || []).push(w); });
+
+  // Define comparison periods (Sat–Wed)
+  const periods = [
+    { key: 'w1', label: 'Jun 20–24', shortLabel: 'Jun 20–24', dates: ['2026-06-21','2026-06-22','2026-06-23','2026-06-24'], color: '#6b7a8f' },
+    { key: 'w2', label: 'Jun 27 – Jul 1', shortLabel: 'Jun 27–Jul 1', dates: ['2026-06-27','2026-06-28','2026-06-29','2026-06-30','2026-07-01'], color: '#8b9aaf' },
+    { key: 'w3', label: 'Jul 4–8', shortLabel: 'Jul 4–8', dates: ['2026-07-04','2026-07-05','2026-07-06','2026-07-07','2026-07-08'], color: '#b794f6' },
+    { key: 'escape', label: 'Jul 11–15 — Escape Weekend', shortLabel: 'Escape Wknd', dates: ['2026-07-11','2026-07-12','2026-07-13','2026-07-14','2026-07-15'], color: '#ff4f9a' },
+  ];
+
+  // Aggregate each period
+  const stats = periods.map(p => {
+    const recs = p.dates.map(d => recMap[d]).filter(Boolean);
+    const slps = p.dates.map(d => sleepMap[d]).filter(Boolean);
+    const wks = p.dates.flatMap(d => workoutMap[d] || []);
+    const avg = (arr, fn) => arr.length ? arr.reduce((a,x)=>a+fn(x),0) / arr.length : 0;
+    // Sleep disturbances — need to check if data includes them
+    // Our whoop.json sleep objects have: date, hours, performance
+    // No disturbances in the repo data, so we'll skip that metric in aggregates
+    return {
+      ...p,
+      n_rec: recs.length,
+      n_sleep: slps.length,
+      recovery_avg: avg(recs, r=>r.score),
+      recovery_min: recs.length ? Math.min(...recs.map(r=>r.score)) : 0,
+      recovery_max: recs.length ? Math.max(...recs.map(r=>r.score)) : 0,
+      hrv_avg: avg(recs, r=>r.hrv),
+      rhr_avg: avg(recs, r=>r.rhr),
+      sleep_h_avg: avg(slps, s=>s.hours),
+      sleep_perf_avg: avg(slps, s=>s.performance),
+      workouts: wks.length,
+      strain_total: wks.reduce((a,w)=>a+(w.strain||0),0),
+      daily: p.dates.map(date => ({
+        date,
+        rec: recMap[date],
+        slp: sleepMap[date],
+        wks: workoutMap[date] || []
+      }))
+    };
+  });
+
+  // --- Comparison table ---
+  const rcClass = v => v >= 67 ? 'good' : v >= 34 ? 'mid' : 'bad';
+  const stressClass = (hrv, rhr) => hrv < 20 || rhr >= 79 ? 'stress-high' : hrv < 30 || rhr >= 75 ? 'stress-mid' : 'stress-low';
+  document.getElementById('compareTableBody').innerHTML = stats.map(s => `
+    <tr${s.key==='escape' ? ' style="background:#fff5f9"' : ''}>
+      <td><strong>${s.label}</strong><br><span class="muted">${s.n_rec}/5 days · ${s.n_sleep}/5 nights</span></td>
+      <td class="${rcClass(s.recovery_avg)}">${s.recovery_avg.toFixed(1)}%<br><span style="font-weight:normal;color:#888;font-size:.75em">${s.recovery_min}–${s.recovery_max}%</span></td>
+      <td>${s.hrv_avg.toFixed(1)} ms</td>
+      <td>${s.rhr_avg.toFixed(1)} bpm</td>
+      <td>${s.sleep_h_avg.toFixed(1)}h</td>
+      <td>${s.sleep_perf_avg.toFixed(0)}%</td>
+      <td class="muted">—</td>
+      <td>${s.strain_total.toFixed(1)} total<br><span class="muted">${s.workouts} workouts</span></td>
+    </tr>
+  `).join('');
+
+  // Stress callout
+  const baseline = stats.slice(0,3);
+  const baselineRec = baseline.reduce((a,s)=>a+s.recovery_avg,0) / baseline.length;
+  const baselineHRV = baseline.reduce((a,s)=>a+s.hrv_avg,0) / baseline.length;
+  const baselineRHR = baseline.reduce((a,s)=>a+s.rhr_avg,0) / baseline.length;
+  const esc = stats[3];
+  const recDelta = esc.recovery_avg - baselineRec;
+  const hrvDelta = esc.hrv_avg - baselineHRV;
+  const rhrDelta = esc.rhr_avg - baselineRHR;
+  document.getElementById('stressCallout').innerHTML = `
+    <strong>🧠 Stress Analysis — Escape Weekend vs. prior 3 weeks:</strong><br>
+    Recovery: <strong class="${recDelta > 0 ? 'stress-low' : 'stress-high'}">${recDelta > 0 ? '+' : ''}${recDelta.toFixed(1)}%</strong> vs baseline ·
+    HRV: <strong class="${hrvDelta > 0 ? 'stress-low' : 'stress-high'}">${hrvDelta > 0 ? '+' : ''}${hrvDelta.toFixed(1)} ms</strong> ·
+    RHR: <strong class="${rhrDelta < 0 ? 'stress-low' : 'stress-high'}">${rhrDelta > 0 ? '+' : ''}${rhrDelta.toFixed(1)} bpm</strong> ·
+    Sleep: <strong>${esc.sleep_h_avg.toFixed(1)}h/night</strong> at <strong>${esc.sleep_perf_avg.toFixed(0)}% performance</strong><br>
+    <span style="font-size:.8em;color:#6d4c41">Note: Jul 13 had no WHOOP data (device not worn). Jul 15 sleep was only 2.9h — moving / settling in stress showing.</span>
+  `;
+
+  // --- Recovery comparison chart ---
+  const allDates = [...new Set(stats.flatMap(s => s.daily.map(d=>d.date)))].sort();
+  const datasets = stats.map(s => ({
+    label: s.shortLabel,
+    data: allDates.map(date => {
+      const day = s.daily.find(d => d.date === date);
+      return day && day.rec ? day.rec.score : null;
+    }),
+    borderColor: s.color,
+    backgroundColor: s.color + '33',
+    tension: 0.35,
+    spanGaps: true,
+    pointRadius: 4,
+  }));
+  new Chart(document.getElementById('recoveryCompareChart'), {
+    type: 'line',
+    data: { labels: allDates.map(d => d.slice(5)), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        y: { min: 0, max: 100, title: { display: true, text: 'Recovery %' } },
+        x: { title: { display: true, text: 'Date' } }
+      }
+    }
+  });
+
+  // HRV chart
+  new Chart(document.getElementById('hrvChart'), {
+    type: 'bar',
+    data: {
+      labels: stats.map(s => s.shortLabel),
+      datasets: [{
+        label: 'Avg HRV (ms)',
+        data: stats.map(s => s.hrv_avg.toFixed(1)),
+        backgroundColor: stats.map(s => s.color)
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'HRV ms — higher is better' } } }
+    }
+  });
+
+  // Sleep chart
+  new Chart(document.getElementById('sleepChart'), {
+    type: 'bar',
+    data: {
+      labels: stats.map(s => s.shortLabel),
+      datasets: [{
+        label: 'Avg Sleep (h)',
+        data: stats.map(s => s.sleep_h_avg.toFixed(1)),
+        backgroundColor: stats.map(s => s.color)
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'Hours asleep' } } }
+    }
+  });
+
+  // --- Escape weekend day-by-day table ---
+  const escapeDaily = stats.find(s => s.key === 'escape').daily;
+  const dayNames = {0:'Sun',1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat'};
+  document.getElementById('escapeTableBody').innerHTML = escapeDaily.map(d => {
+    if (!d.rec) return `<tr style="color:#aaa"><td>${d.date.slice(5)}</td><td>—</td><td colspan="7">no data</td><td></td></tr>`;
+    const dateObj = new Date(d.date+'T12:00:00Z');
+    const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dateObj.getUTCDay()];
+    const rc = d.rec.score >= 67 ? 'good' : d.rec.score >= 34 ? 'mid' : 'bad';
+    const slpH = d.slp ? d.slp.hours.toFixed(1)+'h' : '—';
+    const slpP = d.slp ? d.slp.performance+'%' : '—';
+    const strain = d.wks.reduce((a,w)=>a+(w.strain||0),0).toFixed(1);
+    let note = '';
+    if (d.date === '2026-07-11') note = '📦 Escape day — left Ladson SC';
+    else if (d.date === '2026-07-12') note = '🚗 Driving SC → MD → Jax Beach';
+    else if (d.date === '2026-07-13') note = '📦 Moving in, Walmart restock';
+    else if (d.date === '2026-07-14') note = '🏠 First full day in Jax Beach';
+    else if (d.date === '2026-07-15') note = '📋 Apartment hunting';
+    return `<tr>
+      <td>${d.date.slice(5)}</td>
+      <td>${dayName}</td>
+      <td class="${rc}">${d.rec.score}%</td>
+      <td>${d.rec.hrv.toFixed(1)}</td>
+      <td>${d.rec.rhr}</td>
+      <td>${slpH}</td>
+      <td>${slpP}</td>
+      <td class="muted">—</td>
+      <td>${strain}</td>
+      <td style="font-size:.76rem;color:#6a5a7a">${note}</td>
+    </tr>`;
+  }).join('');
+
+})();
+</script>
+</body>
+</html>
