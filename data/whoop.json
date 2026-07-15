@@ -3,298 +3,380 @@
     "name": "Angela",
     "user_id": 38413189
   },
-  "updated_at": "2026-07-14T14:00:00Z",
-  "date_range": {
-    "start": "2026-06-21",
-    "end": "2026-07-14"
-  },
+  "updated_at": "2026-07-15T20:38:50.100201Z",
   "recovery": [
     {
+      "date": "2026-06-20",
+      "score": 53.0,
+      "rhr": 78.0,
+      "hrv": 29.8
+    },
+    {
       "date": "2026-06-21",
-      "score": 45,
-      "rhr": 75,
+      "score": 45.0,
+      "rhr": 75.0,
       "hrv": 25.5
     },
     {
       "date": "2026-06-22",
-      "score": 47,
-      "rhr": 75,
+      "score": 47.0,
+      "rhr": 75.0,
       "hrv": 23.9
     },
     {
       "date": "2026-06-23",
-      "score": 36,
-      "rhr": 78,
+      "score": 36.0,
+      "rhr": 78.0,
       "hrv": 19.9
     },
     {
       "date": "2026-06-25",
-      "score": 63,
-      "rhr": 77,
+      "score": 63.0,
+      "rhr": 77.0,
       "hrv": 27.0
     },
     {
       "date": "2026-06-26",
-      "score": 93,
-      "rhr": 73,
+      "score": 93.0,
+      "rhr": 73.0,
       "hrv": 44.7
     },
     {
       "date": "2026-06-27",
-      "score": 21,
-      "rhr": 77,
+      "score": 21.0,
+      "rhr": 77.0,
       "hrv": 37.8
     },
     {
       "date": "2026-06-28",
-      "score": 15,
-      "rhr": 81,
+      "score": 15.0,
+      "rhr": 81.0,
       "hrv": 11.1
     },
     {
       "date": "2026-06-29",
-      "score": 75,
-      "rhr": 73,
+      "score": 75.0,
+      "rhr": 73.0,
       "hrv": 35.4
     },
     {
       "date": "2026-07-01",
-      "score": 42,
-      "rhr": 77,
+      "score": 42.0,
+      "rhr": 77.0,
       "hrv": 21.7
     },
     {
       "date": "2026-07-02",
-      "score": 38,
-      "rhr": 78,
+      "score": 38.0,
+      "rhr": 78.0,
       "hrv": 20.0
     },
     {
       "date": "2026-07-03",
-      "score": 52,
-      "rhr": 77,
+      "score": 52.0,
+      "rhr": 77.0,
       "hrv": 25.2
     },
     {
       "date": "2026-07-04",
-      "score": 27,
-      "rhr": 77,
+      "score": 27.0,
+      "rhr": 77.0,
       "hrv": 14.9
     },
     {
       "date": "2026-07-05",
-      "score": 64,
-      "rhr": 74,
+      "score": 64.0,
+      "rhr": 74.0,
       "hrv": 27.9
     },
     {
       "date": "2026-07-06",
-      "score": 83,
-      "rhr": 76,
+      "score": 83.0,
+      "rhr": 76.0,
       "hrv": 33.8
     },
     {
       "date": "2026-07-07",
-      "score": 14,
-      "rhr": 71,
+      "score": 14.0,
+      "rhr": 71.0,
       "hrv": 27.6
     },
     {
       "date": "2026-07-08",
-      "score": 47,
-      "rhr": 73,
+      "score": 47.0,
+      "rhr": 73.0,
       "hrv": 26.8
     },
     {
       "date": "2026-07-09",
-      "score": 51,
-      "rhr": 79,
+      "score": 51.0,
+      "rhr": 79.0,
       "hrv": 21.8
     },
     {
       "date": "2026-07-10",
-      "score": 49,
-      "rhr": 76,
+      "score": 49.0,
+      "rhr": 76.0,
       "hrv": 21.0
     },
     {
       "date": "2026-07-11",
-      "score": 96,
-      "rhr": 69,
+      "score": 96.0,
+      "rhr": 69.0,
       "hrv": 61.2
     },
     {
       "date": "2026-07-12",
-      "score": 28,
-      "rhr": 83,
+      "score": 28.0,
+      "rhr": 83.0,
       "hrv": 15.1
     },
     {
       "date": "2026-07-14",
-      "score": 70,
-      "rhr": 69,
+      "score": 70.0,
+      "rhr": 69.0,
       "hrv": 35.2
     },
     {
       "date": "2026-07-15",
-      "score": 16,
-      "rhr": 71,
+      "score": 16.0,
+      "rhr": 71.0,
       "hrv": 34.8
     }
   ],
   "sleep": [
     {
+      "date": "2026-06-20",
+      "hours": 8.0,
+      "performance": 57.0,
+      "rem_h": 1.6,
+      "sws_h": 0.9,
+      "light_h": 5.4,
+      "awake_h": 2.1
+    },
+    {
       "date": "2026-06-21",
       "hours": 4.6,
-      "performance": 78
+      "performance": 78.0,
+      "rem_h": 0.3,
+      "sws_h": 0.7,
+      "light_h": 3.6,
+      "awake_h": 0.8
     },
     {
       "date": "2026-06-22",
       "hours": 7.4,
-      "performance": 77
+      "performance": 77.0,
+      "rem_h": 1.8,
+      "sws_h": 1.3,
+      "light_h": 4.3,
+      "awake_h": 1.3
     },
     {
       "date": "2026-06-23",
       "hours": 5.2,
-      "performance": 69
+      "performance": 69.0,
+      "rem_h": 0.9,
+      "sws_h": 1.2,
+      "light_h": 3.2,
+      "awake_h": 1.0
     },
     {
       "date": "2026-06-25",
       "hours": 6.8,
-      "performance": 72
+      "performance": 72.0,
+      "rem_h": 1.3,
+      "sws_h": 1.0,
+      "light_h": 4.6,
+      "awake_h": 2.0
     },
     {
       "date": "2026-06-26",
       "hours": 6.6,
-      "performance": 79
+      "performance": 79.0,
+      "rem_h": 1.3,
+      "sws_h": 1.5,
+      "light_h": 3.8,
+      "awake_h": 1.4
     },
     {
       "date": "2026-06-27",
       "hours": 3.1,
-      "performance": 30
+      "performance": 30.0,
+      "rem_h": 0.4,
+      "sws_h": 1.4,
+      "light_h": 1.3,
+      "awake_h": 0.8
     },
     {
       "date": "2026-06-28",
       "hours": 4.9,
-      "performance": 64
+      "performance": 64.0,
+      "rem_h": 0.8,
+      "sws_h": 1.8,
+      "light_h": 2.3,
+      "awake_h": 0.8
     },
     {
       "date": "2026-06-29",
       "hours": 5.9,
-      "performance": 67
+      "performance": 67.0,
+      "rem_h": 1.5,
+      "sws_h": 1.6,
+      "light_h": 2.8,
+      "awake_h": 1.0
     },
     {
       "date": "2026-07-01",
-      "hours": 6.6,
-      "performance": 66
+      "hours": 6.7,
+      "performance": 66.0,
+      "rem_h": 1.0,
+      "sws_h": 1.2,
+      "light_h": 4.4,
+      "awake_h": 1.0
     },
     {
       "date": "2026-07-02",
       "hours": 6.2,
-      "performance": 75
+      "performance": 75.0,
+      "rem_h": 0.8,
+      "sws_h": 1.2,
+      "light_h": 4.2,
+      "awake_h": 0.7
     },
     {
       "date": "2026-07-03",
-      "hours": 6.4,
-      "performance": 76
+      "hours": 6.5,
+      "performance": 76.0,
+      "rem_h": 0.7,
+      "sws_h": 1.2,
+      "light_h": 4.5,
+      "awake_h": 1.2
     },
     {
       "date": "2026-07-04",
       "hours": 5.0,
-      "performance": 68
+      "performance": 68.0,
+      "rem_h": 1.0,
+      "sws_h": 1.3,
+      "light_h": 2.8,
+      "awake_h": 0.9
     },
     {
       "date": "2026-07-05",
       "hours": 7.5,
-      "performance": 77
+      "performance": 77.0,
+      "rem_h": 1.1,
+      "sws_h": 1.3,
+      "light_h": 5.1,
+      "awake_h": 1.3
     },
     {
       "date": "2026-07-06",
-      "hours": 8.7,
-      "performance": 79
+      "hours": 8.8,
+      "performance": 79.0,
+      "rem_h": 2.0,
+      "sws_h": 1.5,
+      "light_h": 5.1,
+      "awake_h": 1.1
     },
     {
       "date": "2026-07-07",
       "hours": 1.5,
-      "performance": 22,
-      "disturbances": 5,
-      "rem_h": 0.3,
-      "sws_h": 0.4,
+      "performance": 22.0,
+      "rem_h": 0.1,
+      "sws_h": 0.8,
       "light_h": 0.6,
-      "awake_h": 0.1
+      "awake_h": 0.1,
+      "disturbances": 5
     },
     {
       "date": "2026-07-08",
-      "hours": 5.3,
-      "performance": 54,
-      "disturbances": 10,
-      "rem_h": 1.3,
+      "hours": 5.4,
+      "performance": 54.0,
+      "rem_h": 1.6,
       "sws_h": 1.5,
-      "light_h": 2.8,
-      "awake_h": 0.8
+      "light_h": 2.1,
+      "awake_h": 0.9,
+      "disturbances": 10
     },
     {
       "date": "2026-07-09",
       "hours": 10.1,
-      "performance": 78,
-      "disturbances": 11,
+      "performance": 78.0,
       "rem_h": 2.4,
-      "sws_h": 2.1,
-      "light_h": 5.3,
-      "awake_h": 1.3
+      "sws_h": 1.9,
+      "light_h": 5.8,
+      "awake_h": 1.0,
+      "disturbances": 11
     },
     {
       "date": "2026-07-10",
-      "hours": 7.6,
-      "performance": 75,
-      "disturbances": 13,
-      "rem_h": 1.8,
-      "sws_h": 1.4,
-      "light_h": 4.6,
-      "awake_h": 1.7
+      "hours": 8.0,
+      "performance": 75.0,
+      "rem_h": 1.6,
+      "sws_h": 1.2,
+      "light_h": 4.8,
+      "awake_h": 1.6,
+      "disturbances": 13
     },
     {
       "date": "2026-07-11",
       "hours": 6.5,
-      "performance": 77,
-      "disturbances": 7,
+      "performance": 77.0,
       "rem_h": 2.1,
       "sws_h": 1.2,
       "light_h": 3.1,
-      "awake_h": 1.2
+      "awake_h": 1.1,
+      "disturbances": 7
     },
     {
       "date": "2026-07-12",
-      "hours": 9.5,
-      "performance": 76,
-      "disturbances": 7,
-      "rem_h": 2.7,
-      "sws_h": 2.4,
-      "light_h": 4.1,
-      "awake_h": 1.1
+      "hours": 9.4,
+      "performance": 76.0,
+      "rem_h": 1.9,
+      "sws_h": 1.5,
+      "light_h": 6.1,
+      "awake_h": 0.9,
+      "disturbances": 7
     },
     {
       "date": "2026-07-14",
       "hours": 5.0,
-      "performance": 71,
-      "disturbances": 11,
-      "rem_h": 1.4,
-      "sws_h": 0.9,
-      "light_h": 2.6,
-      "awake_h": 0.8
+      "performance": 71.0,
+      "rem_h": 0.8,
+      "sws_h": 0.8,
+      "light_h": 3.4,
+      "awake_h": 0.7,
+      "disturbances": 11
     },
     {
       "date": "2026-07-15",
-      "hours": 2.9,
-      "performance": 10,
-      "disturbances": 4,
-      "rem_h": 0.5,
-      "sws_h": 0.4,
-      "light_h": 1.3,
-      "awake_h": 0.7
+      "hours": 2.2,
+      "performance": 10.0,
+      "rem_h": 0.2,
+      "sws_h": 0.8,
+      "light_h": 1.2,
+      "awake_h": 0.7,
+      "disturbances": 4
     }
   ],
   "workouts": [
+    {
+      "date": "2026-06-19",
+      "sport": "activity",
+      "strain": 6.5
+    },
+    {
+      "date": "2026-06-19",
+      "sport": "activity",
+      "strain": 5.1
+    },
+    {
+      "date": "2026-06-19",
+      "sport": "activity",
+      "strain": 5.9
+    },
     {
       "date": "2026-06-21",
       "sport": "activity",
@@ -318,12 +400,12 @@
     {
       "date": "2026-06-30",
       "sport": "activity",
-      "strain": 4.3
+      "strain": 8.0
     },
     {
       "date": "2026-06-30",
       "sport": "activity",
-      "strain": 8.0
+      "strain": 4.3
     },
     {
       "date": "2026-07-02",
@@ -343,7 +425,7 @@
     {
       "date": "2026-07-05",
       "sport": "activity",
-      "strain": 5.0
+      "strain": 4.5
     },
     {
       "date": "2026-07-05",
@@ -353,12 +435,12 @@
     {
       "date": "2026-07-05",
       "sport": "activity",
-      "strain": 4.5
+      "strain": 5.0
     },
     {
       "date": "2026-07-07",
-      "sport": "walking",
-      "strain": 5.0
+      "sport": "activity",
+      "strain": 5.5
     },
     {
       "date": "2026-07-07",
@@ -367,8 +449,8 @@
     },
     {
       "date": "2026-07-07",
-      "sport": "activity",
-      "strain": 5.5
+      "sport": "walking",
+      "strain": 5.0
     },
     {
       "date": "2026-07-08",
@@ -378,7 +460,7 @@
     {
       "date": "2026-07-11",
       "sport": "walking",
-      "strain": 5.3
+      "strain": 5.0
     },
     {
       "date": "2026-07-11",
@@ -388,12 +470,17 @@
     {
       "date": "2026-07-11",
       "sport": "walking",
-      "strain": 5.0
+      "strain": 5.3
     },
     {
       "date": "2026-07-12",
       "sport": "walking",
       "strain": 11.3
+    },
+    {
+      "date": "2026-07-15",
+      "sport": "walking",
+      "strain": 4.3
     }
   ]
 }
