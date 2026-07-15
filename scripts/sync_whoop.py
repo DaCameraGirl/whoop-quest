@@ -211,10 +211,7 @@ if email_to:
             import base64
             from email.message import EmailMessage
             msg = EmailMessage()
-            for addr in [a.strip() for a in email_to.split(',') if a.strip()]:
-                msg['To'] = addr if 'To' not in msg else msg['To'] + ', ' + addr
-            if 'To' not in msg:
-                msg['To'] = email_to
+            msg['To'] = email_to
             msg['From'] = os.environ.get('EMAIL_FROM', 'angela.hudson.data@gmail.com')
             latest_date = dates[0] if dates else 'today'
             latest_rec = rec_map.get(latest_date, {}).get('score', '?') if dates else '?'
