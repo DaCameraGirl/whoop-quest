@@ -271,6 +271,17 @@
       rhr_avg: avg(recs, r=>r.rhr),
       sleep_h_avg: avg(slps, s=>s.hours),
       sleep_perf_avg: avg(slps, s=>s.performance),
+      disturbances_avg: (slps2 => slps2.length ? slps2.reduce((a,s)=>a+(s.disturbances||0),0)/slps2.length : 0)(slps.filter(s=>s.disturbances!=null)),
+      sleep_stages: (() => {
+        const withStages = slps.filter(s=>s.rem_h != null);
+        if (!withStages.length) return null;
+        return {
+          rem: withStages.reduce((a,s)=>a+s.rem_h,0) / withStages.length,
+          sws: withStages.reduce((a,s)=>a+s.sws_h,0) / withStages.length,
+          light: withStages.reduce((a,s)=>a+s.light_h,0) / withStages.length,
+          awake: withStages.reduce((a,s)=>a+s.awake_h,0) / withStages.length,
+        };
+      })(),
       workouts: wks.length,
       strain_total: wks.reduce((a,w)=>a+(w.strain||0),0),
       daily: p.dates.map(date => ({
@@ -293,7 +304,7 @@
       <td>${s.rhr_avg.toFixed(1)} bpm</td>
       <td>${s.sleep_h_avg.toFixed(1)}h</td>
       <td>${s.sleep_perf_avg.toFixed(0)}%</td>
-      <td class="muted">—</td>
+      <td>${s.disturbances_avg ? s.disturbances_avg.toFixed(1) : "—"}</td>
       <td>${s.strain_total.toFixed(1)} total<br><span class="muted">${s.workouts} workouts</span></td>
     </tr>
   `).join('');
@@ -389,6 +400,7 @@
     const rc = d.rec.score >= 67 ? 'good' : d.rec.score >= 34 ? 'mid' : 'bad';
     const slpH = d.slp ? d.slp.hours.toFixed(1)+'h' : '—';
     const slpP = d.slp ? d.slp.performance+'%' : '—';
+    const dist = d.slp && d.slp.disturbances != null ? d.slp.disturbances : '—';
     const strain = d.wks.reduce((a,w)=>a+(w.strain||0),0).toFixed(1);
     let note = '';
     if (d.date === '2026-07-11') note = '📦 Escape day — left Ladson SC';
@@ -404,7 +416,7 @@
       <td>${d.rec.rhr}</td>
       <td>${slpH}</td>
       <td>${slpP}</td>
-      <td class="muted">—</td>
+      <td>${dist}</td>
       <td>${strain}</td>
       <td style="font-size:.76rem;color:#6a5a7a">${note}</td>
     </tr>`;
