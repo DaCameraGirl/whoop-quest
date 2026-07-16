@@ -481,10 +481,9 @@ function renderWhoop(){
 function currentCheeIndex(){
   let idx = 0;
   for(let i=0;i<CHEE_FORMS.length;i++){ if(S.xp >= CHEE_FORMS[i].xp) idx = i; }
-  // chee_form allows manual devolve – clamp to unlocked
-  const unlockedMax = idx;
-  S.chee_form = Math.min(S.chee_form, unlockedMax);
-  return S.chee_form;
+  // Auto-evolve Chee to max unlocked form (prevents migration bug where XP=320 but form=0 stuck at Egg)
+  S.chee_form = idx;
+  return idx;
 }
 
 function renderChee(){
