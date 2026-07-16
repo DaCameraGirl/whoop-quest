@@ -3,7 +3,7 @@
     "name": "Angela",
     "user_id": 38413189
   },
-  "updated_at": "2026-07-15T21:15:55.758638Z",
+  "updated_at": "2026-07-16T16:28:58.500637Z",
   "recovery": [
     {
       "date": "2026-06-20",
@@ -142,6 +142,12 @@
       "score": 16.0,
       "rhr": 71.0,
       "hrv": 34.8
+    },
+    {
+      "date": "2026-07-16",
+      "score": 46.0,
+      "rhr": 70.0,
+      "hrv": 23.7
     }
   ],
   "sleep": [
@@ -359,6 +365,15 @@
       "light_h": 1.2,
       "awake_h": 0.7,
       "disturbances": 4
+    },
+    {
+      "date": "2026-07-16",
+      "hours": 7.7,
+      "performance": 68.0,
+      "rem_h": 2.2,
+      "sws_h": 1.2,
+      "light_h": 4.3,
+      "awake_h": 1.6
     }
   ],
   "workouts": [
@@ -476,6 +491,11 @@
       "date": "2026-07-12",
       "sport": "walking",
       "strain": 11.3
+    },
+    {
+      "date": "2026-07-15",
+      "sport": "walking",
+      "strain": 5.0
     },
     {
       "date": "2026-07-15",
