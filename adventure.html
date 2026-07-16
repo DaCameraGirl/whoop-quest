@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WHOOP Quest Adventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#ff4f9a;
+  --pink-dark:#e03a7e;
+  --purple:#7b2ff7;
+  --purple-dark:#5a1fc8;
+  --bg:#12091c;
+  --card:#1d1230ee;
+  --card2:#2a1a46;
+  --text:#ffe8f3;
+  --muted:#c49aba;
+  --green:#00e676;
+  --yellow:#ffce3d;
+  --red:#ff5a7a;
+  --blue:#5ab6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  background: radial-gradient(1200px 800px at 70% -10%, #3b1860 0%, transparent 60%), linear-gradient(180deg,#1a0d2b 0%, #12091c 100%);
+  color:var(--text);
+  min-height:100vh;
+  padding:14px;
+  padding-bottom:80px;
+}
+h1{font-size:1.55rem}
+h2{font-size:1.15rem;margin-bottom:8px}
+small{color:var(--muted)}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:14px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{font-size:1.8rem}
+.pill{
+  background:#2b1847;border:1px solid #3d2560;
+  padding:5px 12px;border-radius:999px;font-size:.82rem;color:var(--muted);
+}
+.pill b{color:var(--text)}
+.tabs{
+  display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;
+  scrollbar-width:none;
+}
+.tab{
+  background:var(--card2);border:1px solid #3a2460;
+  color:var(--muted);padding:9px 16px;border-radius:14px;
+  font-family:inherit;font-weight:600;font-size:.92rem;
+  cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.tab.active{background:linear-gradient(135deg,var(--pink),var(--purple)); color:#fff; border-color:transparent}
+.card{
+  background:linear-gradient(180deg,#22133aee,#1a1130ee);
+  border:1px solid #3a2360;
+  border-radius:20px;
+  padding:16px;
+  box-shadow:0 10px 40px #0005;
+  margin-bottom:14px;
+}
+.stat-row{display:flex;gap:10px;flex-wrap:wrap}
+.stat{
+  background:#24143d;border:1px solid #3a2460;border-radius:14px;
+  padding:10px 14px;min-width:110px;flex:1;
+}
+.stat .lbl{font-size:.73rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.stat .val{font-size:1.3rem;font-weight:700}
+.bad{color:var(--red)} .ok{color:var(--yellow)} .good{color:var(--green)}
+.btn{
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:#fff;border:none;border-radius:12px;
+  padding:11px 16px;font-family:inherit;font-weight:700;
+  cursor:pointer;transition:.15s;font-size:.93rem;
+}
+.btn:active{transform:scale(.97)}
+.btn.secondary{background:#2a1a46;color:var(--text);border:1px solid #3d2568}
+.btn.small{padding:7px 12px;font-size:.82rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.grid{display:grid;gap:12px}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+.chapter{
+  background:#24143d;border:1px solid #3c2462;border-radius:16px;padding:14px;
+  cursor:pointer;transition:.15s;position:relative;
+}
+.chapter.locked{opacity:.5;filter:grayscale(.3)}
+.chapter.done{border-color:#00e67655}
+.chapter .emoji{font-size:2rem;margin-bottom:4px}
+.zone{
+  background:#24143d;border:1px solid #3c2462;border-radius:16px;padding:14px;text-align:center;
+}
+.zone.locked{opacity:.45}
+.zone .emoji{font-size:2.3rem}
+.progress-bar{
+  background:#1a0d2a;border-radius:999px;height:10px;overflow:hidden;margin-top:8px
+}
+.progress-bar > span{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));border-radius:999px;transition:width .4s}
+.chee-display{
+  text-align:center;padding:18px 10px;background:radial-gradient(300px 140px at 50% 40%, #3a1a5a 0%, transparent 70%);
+}
+.chee-emoji{font-size:5.2rem;filter:drop-shadow(0 10px 24px #ff4f9a55);line-height:1.1}
+.forms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:10px;margin-top:12px}
+.form-slot{
+  background:#24143d;border:1px solid #3c2462;border-radius:14px;text-align:center;padding:10px 6px;cursor:pointer;
+}
+.form-slot.active{border-color:var(--pink);box-shadow:0 0 14px #ff4f9a33}
+.form-slot.locked{opacity:.4}
+.form-slot .e{font-size:1.9rem}
+.quest{
+  background:#24143d;border:1px solid #3c2462;border-radius:14px;padding:13px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.quest.done{opacity:.65;border-color:#00e67633}
+.quest .q-left{flex:1}
+.streak-flame{font-size:1.15rem}
+.boss-card{
+  background:linear-gradient(180deg,#2b1548,#20113a);
+  border:1px solid #4a2a72;border-radius:18px;padding:16px;text-align:center;
+}
+.boss-emoji{font-size:3.8rem}
+.hp-bar{height:14px;background:#140828;border-radius:99px;overflow:hidden;margin:10px 0;border:1px solid #3a2460}
+.hp-bar > span{display:block;height:100%;background:linear-gradient(90deg,#ff5a7a,#ff9a3d);transition:width .3s}
+.log{
+  background:#170c28;border:1px solid #321e52;border-radius:12px;
+  padding:10px;font-size:.83rem;color:var(--muted);
+  max-height:140px;overflow-y:auto;margin-top:10px;
+}
+.view{display:none}
+.view.active{display:block}
+.footer-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#140920ee;backdrop-filter:blur(10px);
+  border-top:1px solid #3a2460;
+  display:flex;justify-content:space-around;padding:8px 4px;
+  z-index:50;
+}
+.footer-nav button{
+  background:none;border:none;color:var(--muted);
+  font-family:inherit;font-size:.72rem;cursor:pointer;
+  padding:6px 10px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:2px
+}
+.footer-nav button.active{color:var(--pink)}
+.footer-nav span.ico{font-size:1.3rem}
+hr.sep{border:none;border-top:1px solid #322052;margin:12px 0}
+.list-tight > div{padding:7px 0;border-bottom:1px dashed #2d1a48;font-size:.9rem}
+.list-tight > div:last-child{border-bottom:none}
+input, select{
+  background:#1b0e2e;border:1px solid #3a2460;color:var(--text);
+  border-radius:10px;padding:9px 11px;font-family:inherit;width:100%;
+}
+label{font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px}
+.toast{
+  position:fixed;bottom:78px;left:50%;transform:translateX(-50%);
+  background:#20113a;border:1px solid #4a2a7a;color:#fff;
+  padding:10px 18px;border-radius:999px;font-size:.88rem;
+  box-shadow:0 8px 30px #0008;z-index:100;display:none;
+}
+@media (max-width:480px){
+  body{padding:10px;padding-bottom:78px}
+  .stat{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="logo">💗</div>
+    <div>
+      <h1>WHOOP Quest</h1>
+      <small>Chee's Recovery Adventure</small>
+    </div>
+  </div>
+  <div class="pill">🔥 Streak <b id="streak-count">0</b> <span id="streak-flame"></span></div>
+</div>
+
+<div class="tabs" id="top-tabs" style="display:none">
+  <button class="tab active" data-view="home">Home</button>
+  <button class="tab" data-view="story">Story</button>
+  <button class="tab" data-view="map">Map</button>
+  <button class="tab" data-view="chee">Chee</button>
+  <button class="tab" data-view="boss">Boss</button>
+  <button class="tab" data-view="quests">Quests</button>
+</div>
+
+<!-- HOME -->
+<div class="view active" id="view-home">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+      <div>
+        <h2>Today's WHOOP</h2>
+        <small id="whoop-date">Loading…</small>
+      </div>
+      <button class="btn secondary small" id="sync-whoop-btn">Sync</button>
+    </div>
+    <div class="stat-row" style="margin-top:12px">
+      <div class="stat"><div class="lbl">Recovery</div><div class="val" id="s-rec">–</div></div>
+      <div class="stat"><div class="lbl">RHR</div><div class="val" id="s-rhr">–</div></div>
+      <div class="stat"><div class="lbl">HRV</div><div class="val" id="s-hrv">–</div></div>
+      <div class="stat"><div class="lbl">Sleep</div><div class="val" id="s-sleep">–</div></div>
+    </div>
+    <div style="margin-top:10px;font-size:.88rem;color:var(--muted)" id="recovery-tier-text"></div>
+  </div>
+
+  <div class="card chee-display">
+    <div class="chee-emoji" id="chee-home-emoji">🥚</div>
+    <div style="font-weight:700;font-size:1.15rem" id="chee-home-name">Chee</div>
+    <small id="chee-home-stage">Stage 1 / 8</small>
+    <div class="progress-bar" style="max-width:320px;margin:10px auto 0"><span id="chee-xp-bar" style="width:30%"></span></div>
+    <small><span id="chee-xp-text">0 XP</span></small>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h2>🗺️ Map Progress</h2>
+      <div id="map-mini">–</div>
+    </div>
+    <div class="card">
+      <h2>⚔️ Weekly Boss</h2>
+      <div id="boss-mini">–</div>
+    </div>
+  </div>
+</div>
+
+<!-- STORY -->
+<div class="view" id="view-story">
+  <div class="card">
+    <h2>📖 Story Mode</h2>
+    <small>Complete chapters to unlock zones. Each chapter needs quest XP.</small>
+  </div>
+  <div id="story-list" class="grid"></div>
+  <div class="card" id="story-detail" style="display:none"></div>
+</div>
+
+<!-- MAP -->
+<div class="view" id="view-map">
+  <div class="card">
+    <h2>🗺️ World Map</h2>
+    <small>Unlock zones by clearing Story chapters.</small>
+  </div>
+  <div id="map-list" class="grid grid-2"></div>
+</div>
+
+<!-- CHEE -->
+<div class="view" id="view-chee">
+  <div class="card chee-display">
+    <div class="chee-emoji" id="chee-big">🥚</div>
+    <div style="font-weight:700;font-size:1.2rem" id="chee-big-name">Egg Chee</div>
+    <small id="chee-big-desc">Just vibing.</small>
+  </div>
+  <div class="card">
+    <h2>🧬 Chee Evolutions</h2>
+    <small>Evolve forward with XP. You can devolve any time to replay forms. 8 total forms.</small>
+    <div class="forms-grid" id="forms-grid"></div>
+  </div>
+</div>
+
+<!-- BOSS -->
+<div class="view" id="view-boss">
+  <div class="card boss-card">
+    <div class="boss-emoji" id="boss-emoji">👹</div>
+    <h2 id="boss-name">The Slump</h2>
+    <small id="boss-week">Week 1</small>
+    <div class="hp-bar"><span id="boss-hp-fill" style="width:100%"></span></div>
+    <div><span id="boss-hp-text">500 / 500 HP</span></div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button class="btn" id="attack-btn">⚔️ Attack (Quest Damage)</button>
+    </div>
+    <small style="display:block;margin-top:8px;color:var(--muted)">Damage = completed daily quests × 25. Resets weekly Sunday.</small>
+    <div class="log" id="boss-log"></div>
+  </div>
+  <div class="card">
+    <h2>Boss Archive</h2>
+    <div class="list-tight" id="boss-archive"></div>
+  </div>
+</div>
+
+<!-- QUESTS -->
+<div class="view" id="view-quests">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h2>📋 Daily Quests</h2>
+        <small>Quests scale with your WHOOP recovery tier. Complete them for XP + boss damage.</small>
+      </div>
+      <div class="pill">🔥 <b id="streak-count-2">0</b></div>
+    </div>
+    <div style="margin-top:10px;font-size:.88rem" id="quest-tier-info"></div>
+  </div>
+  <div id="quest-list" class="grid"></div>
+  <div class="card">
+    <h2>Streaks That Bite</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:8px">Miss 2 days in a row → lose 1 story chapter progress + Chee devolves 1 stage. Keep your streak alive!</p>
+    <div class="list-tight" id="streak-log"></div>
+  </div>
+</div>
+
+<div class="footer-nav">
+  <button class="active" data-view="home"><span class="ico">🏠</span>Home</button>
+  <button data-view="story"><span class="ico">📖</span>Story</button>
+  <button data-view="map"><span class="ico">🗺️</span>Map</button>
+  <button data-view="chee"><span class="ico">✨</span>Chee</button>
+  <button data-view="boss"><span class="ico">⚔️</span>Boss</button>
+  <button data-view="quests"><span class="ico">📋</span>Quests</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CHEE_FORMS = [
+  {name:"Egg Chee", emoji:"🥚", desc:"Just vibing. A mysterious egg.", xp:0},
+  {name:"Hatch Chee", emoji:"🐣", desc:"Hello world!", xp:30},
+  {name:"Sprout Chee", emoji:"🌱", desc:"Growing strong.", xp:90},
+  {name:"Spark Chee", emoji:"⚡", desc:"Zappy and energetic.", xp:180},
+  {name:"Aqua Chee", emoji:"💧", desc:"Hydrated legend.", xp:320},
+  {name:"Star Chee", emoji:"🌟", desc:"Glowing with recovery.", xp:500},
+  {name:"Crown Chee", emoji:"👑", desc:"Peak performer.", xp:720},
+  {name:"Cosmic Chee", emoji:"🌌", desc:"Transcendent. Max form.", xp:1000},
+];
+
+const CHAPTERS = [
+  {id:1, name:"The First Step", emoji:"👟", zone:1, xp_needed:40, story:"Chee wakes up groggy. Recovery is low, but the path begins. Can you complete your first daily quests and start the streak?"},
+  {id:2, name:"Forest of Zzz's", emoji:"🌲", zone:2, xp_needed:120, story:"Sleep is power. Venture into the Forest of Zzz's and collect 7 restful nights. The trees whisper: 'go to bed earlier'."},
+  {id:3, name:"HRV Highlands", emoji:"⛰️", zone:3, xp_needed:260, story:"Thin air, strong heart. Build HRV with consistent recovery habits. Boss energy gates are opening…"},
+  {id:4, name:"The Burnout Bog", emoji:"🕳️", zone:4, xp_needed:450, story:"The Slump spreads. Streaks are your only rope. Cross the bog without missing 2 days or you'll slide back."},
+  {id:5, name:"Recovery Citadel", emoji:"🏰", zone:5, xp_needed:700, story:"The final stronghold. Crown Chee stands ready. Defeat the Overtraining Overlord and claim Cosmic form."},
+];
+
+const ZONES = [
+  {id:1, name:"Meadow Start", emoji:"🌻", desc:"Gentle fields. Perfect for beginners."},
+  {id:2, name:"Forest of Zzz's", emoji:"🌲", desc:"Sleep deeper, recover harder."},
+  {id:3, name:"HRV Highlands", emoji:"⛰️", desc:"High altitude, high variability."},
+  {id:4, name:"Burnout Bog", emoji:"🕳️", desc:"One misstep costs you progress."},
+  {id:5, name:"Recovery Citadel", emoji:"🏰", desc:"Endgame zone. Only the recovered enter."},
+];
+
+const WEEKLY_BOSSES = [
+  {name:"The Slump", emoji:"👹", hp:500},
+  {name:"Doomscroll Drake", emoji:"🐉", hp:620},
+  {name:"Caffeine Gremlin", emoji:"👺", hp:740},
+  {name:"Overtraining Overlord", emoji:"💀", hp:900},
+];
+
+function sampleWhoop(){
+  return {recovery:46, rhr:70, hrv:23.7, sleep:7.7, date: new Date().toISOString().slice(0,10)};
+}
+
+const LS_KEY = 'whoop_quest_v1';
+const defaultSave = {
+  xp: 15,
+  chee_form: 0,
+  chapters_cleared: [],
+  zones_unlocked: [1],
+  streak: 0,
+  last_checkin: null,
+  missed_days: 0,
+  quests_date: null,
+  quests: [],
+  boss_week_start: null,
+  boss_index: 0,
+  boss_hp: 500,
+  boss_log: [],
+  boss_kills: [],
+  streak_history: [],
+  chee_unlocked: 1,
+};
+
+function loadSave(){
+  try{ return {...defaultSave, ...JSON.parse(localStorage.getItem(LS_KEY) || '{}') }}catch{ return {...defaultSave}}
+}
+let S = loadSave();
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(S)) }
+
+let WHOOP = sampleWhoop();
+
+async function loadWhoop(){
+  try{
+    const res = await fetch('./data/whoop.json', {cache:'no-store'});
+    if(!res.ok) throw 0;
+    const j = await res.json();
+    WHOOP = {
+      recovery: j.recovery ?? j.recovery_pct ?? 46,
+      rhr: j.rhr ?? j.resting_heart_rate ?? 70,
+      hrv: j.hrv ?? 23.7,
+      sleep: j.sleep_hours ?? j.sleep ?? 7.7,
+      date: j.date || new Date().toISOString().slice(0,10)
+    };
+  }catch(e){
+    WHOOP = sampleWhoop();
+  }
+  renderWhoop();
+  generateQuestsIfNeeded();
+}
+
+function recoveryTier(r){
+  if(r >= 67) return {name:'Green – Peak', color:'good', bonus:3, tier:3};
+  if(r >= 34) return {name:'Yellow – Sustain', color:'ok', bonus:2, tier:2};
+  return {name:'Red – Rest', color:'bad', bonus:1, tier:1};
+}
+
+function renderWhoop(){
+  const t = recoveryTier(WHOOP.recovery);
+  document.getElementById('s-rec').textContent = WHOOP.recovery + '%';
+  document.getElementById('s-rec').className = 'val ' + t.color;
+  document.getElementById('s-rhr').textContent = WHOOP.rhr;
+  document.getElementById('s-hrv').textContent = WHOOP.hrv;
+  document.getElementById('s-sleep').textContent = WHOOP.sleep + 'h';
+  document.getElementById('whoop-date').textContent = WHOOP.date;
+  document.getElementById('recovery-tier-text').innerHTML = `<b class="${t.color}">${t.name}</b> — Quest XP multiplier ×${t.bonus}`;
+}
+
+function currentCheeIndex(){
+  let idx = 0;
+  for(let i=0;i<CHEE_FORMS.length;i++){ if(S.xp >= CHEE_FORMS[i].xp) idx = i; }
+  // chee_form allows manual devolve – clamp to unlocked
+  const unlockedMax = idx;
+  S.chee_form = Math.min(S.chee_form, unlockedMax);
+  return S.chee_form;
+}
+
+function renderChee(){
+  const idx = currentCheeIndex();
+  const form = CHEE_FORMS[idx];
+  document.getElementById('chee-home-emoji').textContent = form.emoji;
+  document.getElementById('chee-home-name').textContent = form.name;
+  document.getElementById('chee-home-stage').textContent = `Stage ${idx+1} / ${CHEE_FORMS.length}`;
+  const next = CHEE_FORMS[idx+1];
+  let pct = 100;
+  let xpText = `${S.xp} XP – Max!`;
+  if(next){
+    const span = next.xp - form.xp;
+    const cur = S.xp - form.xp;
+    pct = Math.min(100, Math.max(2, Math.round(cur/span*100)));
+    xpText = `${S.xp} XP / ${next.xp} XP`;
+  }
+  document.getElementById('chee-xp-bar').style.width = pct + '%';
+  document.getElementById('chee-xp-text').textContent = xpText;
+
+  // big view
+  document.getElementById('chee-big').textContent = form.emoji;
+  document.getElementById('chee-big-name').textContent = form.name;
+  document.getElementById('chee-big-desc').textContent = form.desc;
+
+  renderFormsGrid();
+}
+
+function renderFormsGrid(){
+  const grid = document.getElementById('forms-grid');
+  // find max unlocked based on XP
+  let maxUnlocked = 0;
+  for(let i=0;i<CHEE_FORMS.length;i++) if(S.xp >= CHEE_FORMS[i].xp) maxUnlocked = i;
+  S.chee_unlocked = Math.max(S.chee_unlocked||0, maxUnlocked+1);
+  grid.innerHTML = CHEE_FORMS.map((f,i)=>{
+    const unlocked = S.xp >= f.xp;
+    const active = i === currentCheeIndex();
+    return `<div class="form-slot ${active?'active':''} ${!unlocked?'locked':''}" data-form="${i}">
+      <div class="e">${unlocked?f.emoji:'🔒'}</div>
+      <div style="font-size:.73rem;font-weight:700;margin-top:3px">${f.name.split(' ')[0]}</div>
+      <small>${f.xp} XP</small>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.form-slot').forEach(el=>{
+    el.onclick = ()=>{
+      const i = +el.dataset.form;
+      if(S.xp >= CHEE_FORMS[i].xp){
+        S.chee_form = i;
+        save();
+        toast(`Switched to ${CHEE_FORMS[i].name}`);
+        renderChee();
+      }else{
+        toast('Not unlocked yet – earn more XP!');
+      }
+    };
+  });
+}
+
+// Story
+function renderStory(){
+  const el = document.getElementById('story-list');
+  el.innerHTML = CHAPTERS.map(ch=>{
+    const cleared = S.chapters_cleared.includes(ch.id);
+    const unlocked = ch.id === 1 || S.chapters_cleared.includes(ch.id-1);
+    const progress = Math.min(100, Math.round(S.xp / ch.xp_needed * 100));
+    return `<div class="chapter ${!unlocked?'locked':''} ${cleared?'done':''}" data-ch="${ch.id}">
+      <div class="emoji">${ch.emoji}</div>
+      <b>Ch. ${ch.id} · ${ch.name}</b>
+      <div><small>${cleared ? '✅ Cleared' : unlocked ? `${S.xp} / ${ch.xp_needed} XP` : 'Locked'}</small></div>
+      ${unlocked && !cleared ? `<div class="progress-bar"><span style="width:${progress}%"></span></div>`:''}
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.chapter').forEach(d=>{
+    d.onclick = ()=> openChapter(+d.dataset.ch);
+  });
+}
+
+function openChapter(id){
+  const ch = CHAPTERS.find(c=>c.id===id);
+  const cleared = S.chapters_cleared.includes(id);
+  const unlocked = id === 1 || S.chapters_cleared.includes(id-1);
+  const box = document.getElementById('story-detail');
+  if(!unlocked){ box.style.display='none'; return; }
+  const canClear = S.xp >= ch.xp_needed && !cleared;
+  box.style.display='block';
+  box.innerHTML = `
+    <h2>${ch.emoji} Chapter ${ch.id}: ${ch.name}</h2>
+    <p style="margin:10px 0;color:var(--muted)">${ch.story}</p>
+    <p>Required XP: <b>${ch.xp_needed}</b> · You have: <b>${S.xp}</b></p>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn" ${canClear?'':'disabled'} id="clear-ch-btn">${cleared?'✅ Cleared':'Clear Chapter'}</button>
+      <button class="btn secondary" id="close-ch-btn">Close</button>
+    </div>`;
+  document.getElementById('close-ch-btn').onclick = ()=> box.style.display='none';
+  const clearBtn = document.getElementById('clear-ch-btn');
+  if(clearBtn) clearBtn.onclick = ()=>{
+    if(S.xp < ch.xp_needed) return;
+    if(!S.chapters_cleared.includes(id)) S.chapters_cleared.push(id);
+    if(!S.zones_unlocked.includes(ch.zone)) S.zones_unlocked.push(ch.zone);
+    save();
+    toast(`Chapter ${id} cleared! Zone unlocked.`);
+    box.style.display='none';
+    refreshAll();
+  };
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// Map
+function renderMap(){
+  const el = document.getElementById('map-list');
+  el.innerHTML = ZONES.map(z=>{
+    const unlocked = S.zones_unlocked.includes(z.id);
+    return `<div class="zone ${!unlocked?'locked':''}">
+      <div class="emoji">${unlocked?z.emoji:'🔒'}</div>
+      <b>${z.name}</b>
+      <div><small>${unlocked?z.desc:'Clear Chapter '+z.id+' to unlock'}</small></div>
+    </div>`;
+  }).join('');
+  document.getElementById('map-mini').textContent = `${S.zones_unlocked.length} / ${ZONES.length} zones unlocked`;
+}
+
+// Quests
+function questTemplatesForTier(tier){
+  const base = [
+    {id:'sleep', text:'Sleep 7+ hrs', xp:12},
+    {id:'water', text:'Drink 2L water', xp:8},
+    {id:'walk', text:'10 min walk', xp:8},
+    {id:'breath', text:'2 min breathing', xp:8},
+  ];
+  const yellow = [
+    {id:'train', text:'20 min strain workout', xp:15},
+    {id:'steps', text:'8,000 steps', xp:12},
+  ];
+  const green = [
+    {id:'pr', text:'Push workout (30 min+)', xp:20},
+    {id:'cold', text:'Cold exposure / contrast', xp:15},
+    {id:'mobility', text:'Mobility flow 10 min', xp:10},
+  ];
+  let out = [...base];
+  if(tier >= 2) out = out.concat(yellow);
+  if(tier >= 3) out = out.concat(green, [{id:'bonus', text:'Bonus: no alcohol / late caffeine', xp:15}]);
+  // deduplicate, limit to 6
+  const seen = new Set();
+  out = out.filter(q=> !seen.has(q.id) && seen.add(q.id));
+  return out.slice(0,6);
+}
+
+function generateQuestsIfNeeded(){
+  const today = new Date().toISOString().slice(0,10);
+  if(S.quests_date === today && S.quests.length) { renderQuests(); return; }
+  const t = recoveryTier(WHOOP.recovery);
+  const templates = questTemplatesForTier(t.tier);
+  S.quests_date = today;
+  S.quests = templates.map(qt=>({...qt, xp: qt.xp * t.bonus, done:false}));
+  save();
+  renderQuests();
+}
+
+function renderQuests(){
+  const t = recoveryTier(WHOOP.recovery);
+  document.getElementById('quest-tier-info').innerHTML = `Recovery <b class="${t.color}">${WHOOP.recovery}% – ${t.name}</b> · Quests give ×${t.bonus} XP`;
+  const el = document.getElementById('quest-list');
+  if(!S.quests.length){
+    el.innerHTML = `<div class="card">No quests yet. Sync WHOOP.</div>`;
+    return;
+  }
+  el.innerHTML = S.quests.map((q,i)=>`
+    <div class="quest ${q.done?'done':''}">
+      <div class="q-left"><b>${q.text}</b><br><small>+${q.xp} XP · boss +25 dmg</small></div>
+      <button class="btn small" ${q.done?'disabled':''} data-qi="${i}">${q.done?'✓ Done':'Complete'}</button>
+    </div>
+  `).join('');
+  el.querySelectorAll('button[data-qi]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const i = +btn.dataset.qi;
+      if(S.quests[i].done) return;
+      S.quests[i].done = true;
+      const gained = S.quests[i].xp;
+      S.xp += gained;
+      // checkin streak logic
+      checkInToday();
+      save();
+      toast(`+${gained} XP · ${S.quests[i].text}`);
+      renderQuests();
+      renderChee();
+      renderStory();
+      renderBossMini();
+    };
+  });
+  updateStreakDisplay();
+}
+
+// Streaks That Bite
+function checkInToday(){
+  const todayStr = new Date().toISOString().slice(0,10);
+  if(S.last_checkin === todayStr) return;
+  if(S.last_checkin){
+    const last = new Date(S.last_checkin + 'T12:00:00Z');
+    const today = new Date(todayStr + 'T12:00:00Z');
+    const diffDays = Math.round((today - last) / 86400000);
+    if(diffDays === 1){
+      S.streak += 1;
+      S.missed_days = 0;
+    } else if(diffDays > 1){
+      S.missed_days = (S.missed_days || 0) + (diffDays - 1);
+      S.streak_history.push(`${todayStr}: missed ${diffDays-1}d`);
+      // Streaks That Bite: miss 2 days = lose progress
+      if(diffDays >= 2){
+        bite();
+      } else {
+        S.streak = 1; // reset but no bite yet
+      }
+    }
+  } else {
+    S.streak = 1;
+  }
+  S.last_checkin = todayStr;
+  S.streak_history.push(`${todayStr}: check-in, streak ${S.streak}`);
+  if(S.streak_history.length > 20) S.streak_history = S.streak_history.slice(-20);
+}
+
+function bite(){
+  // lose 1 chapter progress + chee devolves 1 stage
+  const lastCleared = Math.max(0, ...S.chapters_cleared);
+  if(lastCleared){
+    S.chapters_cleared = S.chapters_cleared.filter(c=>c !== lastCleared);
+    const zoneToLock = CHAPTERS.find(c=>c.id===lastCleared)?.zone;
+    if(zoneToLock && zoneToLock > 1) S.zones_unlocked = S.zones_unlocked.filter(z=>z !== zoneToLock);
+  }
+  // devolve chee
+  let maxForm = 0;
+  for(let i=0;i<CHEE_FORMS.length;i++) if(S.xp >= CHEE_FORMS[i].xp) maxForm = i;
+  S.chee_form = Math.max(0, (S.chee_form||maxForm) - 1);
+  // lose some XP
+  S.xp = Math.max(0, S.xp - 25);
+  S.streak = 0;
+  S.missed_days = 0;
+  toast('💀 STREAK BITE! Lost chapter progress + Chee devolved!');
+  save();
+  refreshAll();
+}
+
+function updateStreakDisplay(){
+  document.querySelectorAll('#streak-count, #streak-count-2').forEach(el=> el.textContent = S.streak);
+  const flame = S.streak >= 7 ? '🔥🔥' : S.streak >= 3 ? '🔥' : S.streak>0?'✨':'';
+  const fEl = document.getElementById('streak-flame');
+  if(fEl) fEl.textContent = flame;
+  const log = document.getElementById('streak-log');
+  if(log){
+    log.innerHTML = (S.streak_history.slice().reverse().map(s=>`<div>${s}</div>`).join('') || '<div>No history yet</div>');
+  }
+}
+
+// Boss
+function getBossWeek(){
+  const now = new Date();
+  const jan1 = new Date(now.getFullYear(), 0, 1);
+  const week = Math.floor((now - jan1) / (7*864e5));
+  return week;
+}
+function ensureBossCurrent(){
+  const weekStart = getWeekStartStr();
+  if(S.boss_week_start !== weekStart){
+    const weekNum = getBossWeek();
+    S.boss_index = weekNum % WEEKLY_BOSSES.length;
+    const boss = WEEKLY_BOSSES[S.boss_index];
+    S.boss_hp = boss.hp;
+    S.boss_week_start = weekStart;
+    S.boss_log = [`${weekStart}: ${boss.name} appeared!`];
+    save();
+  }
+}
+function getWeekStartStr(){
+  const d = new Date();
+  const day = d.getDay(); // 0 Sun
+  const diff = d.getDate() - day + (day===0?-6:1); // rough monday
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - ((d.getDay()+6)%7));
+  return monday.toISOString().slice(0,10);
+}
+function renderBoss(){
+  ensureBossCurrent();
+  const boss = WEEKLY_BOSSES[S.boss_index];
+  document.getElementById('boss-emoji').textContent = boss.emoji;
+  document.getElementById('boss-name').textContent = boss.name;
+  document.getElementById('boss-week').textContent = 'Week of ' + S.boss_week_start;
+  const hpPct = Math.max(0, Math.round(S.boss_hp / boss.hp * 100));
+  document.getElementById('boss-hp-fill').style.width = hpPct + '%';
+  document.getElementById('boss-hp-text').textContent = `${S.boss_hp} / ${boss.hp} HP`;
+  const logEl = document.getElementById('boss-log');
+  logEl.innerHTML = S.boss_log.slice(-12).reverse().map(l=>`<div>${l}</div>`).join('') || 'No attacks yet.';
+  const arch = document.getElementById('boss-archive');
+  arch.innerHTML = S.boss_kills.length ? S.boss_kills.map(k=>`<div>${k}</div>`).join('') : '<div>No kills yet</div>';
+}
+function renderBossMini(){
+  ensureBossCurrent();
+  const boss = WEEKLY_BOSSES[S.boss_index];
+  document.getElementById('boss-mini').textContent = `${boss.name} · ${S.boss_hp}/${boss.hp} HP`;
+}
+
+document.getElementById('attack-btn').onclick = ()=>{
+  ensureBossCurrent();
+  const questsDone = (S.quests || []).filter(q=>q.done).length;
+  if(questsDone === 0){
+    toast('Complete daily quests first – they power your attacks!');
+    return;
+  }
+  const boss = WEEKLY_BOSSES[S.boss_index];
+  const dmg = questsDone * 25;
+  S.boss_hp = Math.max(0, S.boss_hp - dmg);
+  const msg = `⚔️ Hit ${boss.name} for ${dmg} dmg (${questsDone} quests)`;
+  S.boss_log.push(msg);
+  toast(msg);
+  if(S.boss_hp === 0){
+    S.boss_kills.push(`${S.boss_week_start}: Defeated ${boss.name}`);
+    S.boss_log.push(`🎉 ${boss.name} defeated! +80 XP`);
+    S.xp += 80;
+    S.boss_hp = 0;
+    toast('Boss defeated! +80 XP');
+  }
+  save();
+  renderBoss();
+  renderChee();
+  renderStory();
+};
+
+// Nav
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el = document.getElementById('view-' + name);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.footer-nav button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view === name);
+  });
+  document.querySelectorAll('#top-tabs .tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view === name);
+  });
+}
+document.querySelectorAll('[data-view]').forEach(btn=>{
+  btn.addEventListener('click', ()=> showView(btn.dataset.view));
+});
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.style.display='none', 2200);
+}
+
+function refreshAll(){
+  renderChee();
+  renderStory();
+  renderMap();
+  renderBoss();
+  renderQuests();
+  updateStreakDisplay();
+  renderBossMini();
+}
+
+document.getElementById('sync-whoop-btn').onclick = async ()=>{
+  document.getElementById('sync-whoop-btn').textContent = 'Syncing…';
+  await loadWhoop();
+  document.getElementById('sync-whoop-btn').textContent = 'Sync';
+  toast('WHOOP synced');
+};
+
+// init
+(async ()=>{
+  await loadWhoop();
+  // streak check on boot
+  const todayStr = new Date().toISOString().slice(0,10);
+  if(S.last_checkin && S.last_checkin !== todayStr){
+    const last = new Date(S.last_checkin + 'T12:00:00Z');
+    const today = new Date(todayStr + 'T12:00:00Z');
+    const diffDays = Math.round((today - last) / 86400000);
+    if(diffDays >= 2){
+      bite();
+    }
+  }
+  renderChee();
+  renderStory();
+  renderMap();
+  renderBoss();
+  renderBossMini();
+  updateStreakDisplay();
+})();
+
+</script>
+</body>
+</html>
