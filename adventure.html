@@ -673,15 +673,18 @@ function renderQuests(){
       const boss = WEEKLY_BOSSES[S.boss_index];
       const t = recoveryTier(WHOOP.recovery);
       // Base 25 dmg × recovery tier multiplier (red=1, yellow=2, green=3)
-      const dmg = Math.round(25 * t.bonus);
+      const wasAlive = S.boss_hp > 0;
+      const dmg = wasAlive ? Math.round(25 * t.bonus) : 0;
       S.boss_hp = Math.max(0, S.boss_hp - dmg);
-      const bossMsg = `⚔️ ${S.quests[i].text} → ${boss.name} -${dmg} HP`;
+      const bossMsg = wasAlive
+        ? `⚔️ ${S.quests[i].text} → ${boss.name} -${dmg} HP`
+        : `⚔️ ${S.quests[i].text} (boss already defeated)`;
       S.boss_log.push(bossMsg);
       // Keep log trimmed
       if(S.boss_log.length > 30) S.boss_log = S.boss_log.slice(-30);
 
       let bossDefeated = false;
-      if(S.boss_hp === 0){
+      if(wasAlive && S.boss_hp === 0){
         S.boss_kills.push(`${S.boss_week_start}: Defeated ${boss.name}`);
         S.boss_log.push(`🎉 ${boss.name} defeated! +80 XP`);
         S.xp += 80;
