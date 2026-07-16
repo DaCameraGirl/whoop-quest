@@ -130,14 +130,23 @@ const SLEEP_PERF = latestSleep.performance;
 const DISTURB = latestSleep.disturbances || 5;
 const STRAIN_TODAY = (WHOOP.workouts||[]).filter(w=>w.date===latest.date).reduce((a,w)=>a+w.strain,0);
 
-// --- The Three Futures ---
+// --- The Three Futures — EMOJI INFESTATION MODE 😤 ---
 const FUTURES = {
   work: {
     id:'work', name:'Work Future', emoji:'📊',
     desc:'High strain. Sharp, overclocked agents.',
     color1:'#ff3b5c', color2:'#ff7a45',
     bg:'#1a0a14',
-    enemyEmoji:['📎','💼','📈','⚙️'],
+    enemyEmoji:[
+      // Office hell
+      '📎','💼','📈','⚙️','📊','💻','📋','✉️','📞','⏰','💸','📉','🔔',
+      // Deadlines & stress
+      '📌','📍','🗂️','📁','🖨️','⌛','⏳','🔥','💥','⚡','🚨','❗','‼️',
+      // Corporate dread
+      '📝','📄','🧾','💳','🏢','🖥️','⌨️','🖱️','📠','🗑️','🔗','🔒','📛',
+      // The grind
+      '☕','🤖','🔧','⛓️','💰','📉','📈','🕐','🕑','🕒','🕓','🕔',
+    ],
     enemyName:'Overclock Agent',
     fog: 0.15,
     spawnRate: 1.4,
@@ -150,7 +159,18 @@ const FUTURES = {
     desc:'Low recovery. Fog beasts. Heavy air.',
     color1:'#6b4bc9', color2:'#3d2568',
     bg:'#0f0a1e',
-    enemyEmoji:['👻','🌫️','💤','🫧'],
+    enemyEmoji:[
+      // Sleepy fog nightmare
+      '👻','🌫️','💤','🫧','😴','🥱','🛏️','☁️','🌙',
+      // Exhaustion
+      '😵','😵‍💫','🥴','💫','✨','🌟','💭','🌀','🕸️',
+      // Night terrors
+      '🦇','🕷️','🦉','🌚','🌘','🌑','❄️','💨','🌪️',
+      // Bed monsters
+      '🧸','🪦','⚰️','🦠','🧪','💊','🩹','🩻','🫠',
+      // Dream fog
+      '🔮','🌌','☁️','💜','🟣','🔵','🌊','🎭','🎪',
+    ],
     enemyName:'Fog Beast',
     fog: 0.5,
     spawnRate: 0.9,
@@ -163,7 +183,20 @@ const FUTURES = {
     desc:'Stress / low HRV. Ghost echoes trail you.',
     color1:'#00d9c0', color2:'#006b5c',
     bg:'#051a18',
-    enemyEmoji:['👁️','💬','📱','🫥'],
+    enemyEmoji:[
+      // Emotional ghosts
+      '👁️','💬','📱','🫥','❤️‍🩹','📵','💔','😶',
+      // Missed connections
+      '📞','☎️','📟','💌','✉️','📨','📩','📧','📮',
+      // Ghost feelings
+      '👤','👥','🫂','💭','😮‍💨','😔','🥺','😢','😭',
+      // Social anxiety
+      '👀','🙈','🙉','🙊','🤐','😶‍🌫️','🫣','😳','🥲',
+      // Unread messages
+      '🔕','🔇','⏰','⌛','⏳','💬','💭','🗯️','💤',
+      // The void
+      '🕳️','🌑','🖤','💀','☠️','👻','🫥','🌫️','🔮',
+    ],
     enemyName:'Echo',
     fog: 0.28,
     spawnRate: 1.15,
