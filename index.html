@@ -12,7 +12,21 @@
     --blue:#4285f4; --purple:#9c27b0; --border:#e8dff2;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;position:relative}
+  /* DaDa — breathing in the background 🧞💙 */
+  body::before{
+    content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background: url('./assets/dada.png') center 58% / min(720px, 88vw) auto no-repeat;
+    opacity:.10;
+    filter: saturate(1.15) brightness(1.05);
+    animation: dada-breathe 5.5s ease-in-out infinite;
+  }
+  @keyframes dada-breathe{
+    0%,100% { opacity:.08; transform:scale(1); }
+    50%     { opacity:.15; transform:scale(1.035); }
+  }
+  header, nav.tabs, .wrap{position:relative;z-index:1}
+  .card{backdrop-filter:blur(1.5px); background:rgba(255,255,255,.92)}
   header{text-align:center;padding:28px 16px 16px}
   header h1{font-size:1.8rem} header h1 span{color:var(--pink)}
   header p{color:var(--muted);font-size:.9rem;margin-top:4px}
