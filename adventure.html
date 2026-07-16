@@ -385,14 +385,33 @@ async function loadWhoop(){
     const res = await fetch('./data/whoop.json', {cache:'no-store'});
     if(!res.ok) throw 0;
     const j = await res.json();
+    // whoop.json has arrays: recovery[], sleep[], workouts[]
+    // Extract latest values
+    let rec = 46, rhr = 70, hrv = 23.7, sleep_h = 7.7, date = new Date().toISOString().slice(0,10);
+    if (Array.isArray(j.recovery) && j.recovery.length) {
+      const r = j.recovery[j.recovery.length-1];
+      rec = r.score ?? r.recovery ?? 46;
+      rhr = r.rhr ?? 70;
+      hrv = r.hrv ?? 23.7;
+      date = r.date ?? date;
+    }
+    if (Array.isArray(j.sleep) && j.sleep.length) {
+      const s = j.sleep[j.sleep.length-1];
+      sleep_h = s.hours ?? s.sleep_hours ?? 7.7;
+      if (!date || date < s.date) date = s.date;
+    }
+    // Also support flat/legacy format
     WHOOP = {
-      recovery: j.recovery ?? j.recovery_pct ?? 46,
-      rhr: j.rhr ?? j.resting_heart_rate ?? 70,
-      hrv: j.hrv ?? 23.7,
-      sleep: j.sleep_hours ?? j.sleep ?? 7.7,
-      date: j.date || new Date().toISOString().slice(0,10)
+      recovery: j.recovery_pct ?? rec,
+      rhr: j.resting_heart_rate ?? rhr,
+      hrv: j.hrv ?? hrv,
+      sleep: j.sleep_hours ?? sleep_h,
+      date: j.date ?? date,
+      // keep full arrays for stats/history
+      _full: j
     };
   }catch(e){
+    console.warn('WHOOP load failed, using sample', e);
     WHOOP = sampleWhoop();
   }
   renderWhoop();
