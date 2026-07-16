@@ -271,9 +271,9 @@ label{font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px}
     <div class="hp-bar"><span id="boss-hp-fill" style="width:100%"></span></div>
     <div><span id="boss-hp-text">500 / 500 HP</span></div>
     <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-      <button class="btn" id="attack-btn">⚔️ Attack (Quest Damage)</button>
+      <button class="btn" id="attack-btn">⚔️ Boss Status</button>
     </div>
-    <small style="display:block;margin-top:8px;color:var(--muted)">Damage = completed daily quests × 25. Resets weekly Sunday.</small>
+    <small style="display:block;margin-top:8px;color:var(--muted)">Complete daily quests to damage the boss! Red ×1 / Yellow ×2 / Green ×3 dmg. Resets weekly Sunday.</small>
     <div class="log" id="boss-log"></div>
   </div>
   <div class="card">
@@ -376,6 +376,35 @@ function loadSave(){
   try{ return {...defaultSave, ...JSON.parse(localStorage.getItem(LS_KEY) || '{}') }}catch{ return {...defaultSave}}
 }
 let S = loadSave();
+
+// --- Migrate XP from quest.html (if present) ---
+(function migrateQuestBoardXP(){
+  // Only run once, and only if current XP is at default (new player)
+  if(S.xp !== defaultSave.xp || localStorage.getItem('wq_migrated')) return;
+  try{
+    let questsCompleted = 0;
+    // quest.html stores completions in keys like "wq_2026-07-16"
+    for(let i=0; i < localStorage.length; i++){
+      const key = localStorage.key(i);
+      if(!key || !key.startsWith('wq_')) continue;
+      if(key === 'wq_migrated') continue;
+      const saved = JSON.parse(localStorage.getItem(key) || '{}');
+      for(const k in saved){ if(saved[k] === true) questsCompleted++; }
+    }
+    if(questsCompleted > 0 || localStorage.length > 5){
+      // Angela had LVL 6 Legend / 2682 XP in quest.html
+      // Give Quest Board veterans a head start: 320 XP = Aqua Chee (form 5/8)
+      // + Chapters 1-2 auto-cleared, Zones 1-2 unlocked
+      const migratedXP = 320;
+      S.xp = Math.max(S.xp, migratedXP);
+      S.chapters_cleared = [1, 2];
+      S.zones_unlocked = [1, 2];
+      localStorage.setItem('wq_migrated', '1');
+      console.log(`[WHOOP Quest Adventure] Migrated from Quest Board: ${questsCompleted} quests completed → Aqua Chee · 320 XP · Ch.1-2 cleared`);
+    }
+  }catch(e){ console.warn('XP migration failed', e); }
+})();
+
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(S)) }
 
 let WHOOP = sampleWhoop();
@@ -419,19 +448,33 @@ async function loadWhoop(){
 }
 
 function recoveryTier(r){
+  // Defensive: extract number if r is array/object (WHOOP API bug guard)
+  if(Array.isArray(r)) r = r.length ? (r[r.length-1]?.score ?? r[r.length-1] ?? 46) : 46;
+  if(r && typeof r === 'object') r = r.score ?? r.recovery ?? r.recovery_pct ?? 46;
+  r = Number(r) || 46;
   if(r >= 67) return {name:'Green – Peak', color:'good', bonus:3, tier:3};
   if(r >= 34) return {name:'Yellow – Sustain', color:'ok', bonus:2, tier:2};
   return {name:'Red – Rest', color:'bad', bonus:1, tier:1};
 }
 
 function renderWhoop(){
-  const t = recoveryTier(WHOOP.recovery);
-  document.getElementById('s-rec').textContent = WHOOP.recovery + '%';
+  // Defensive normalize — never show [object Object]
+  let rec = WHOOP.recovery;
+  if(Array.isArray(rec)) rec = rec[rec.length-1]?.score ?? 46;
+  if(rec && typeof rec === 'object') rec = rec.score ?? 46;
+  rec = Number(rec) || 46;
+  let sleep = WHOOP.sleep;
+  if(Array.isArray(sleep)) sleep = sleep[sleep.length-1]?.hours ?? 7.7;
+  if(sleep && typeof sleep === 'object') sleep = sleep.hours ?? sleep.sleep_hours ?? 7.7;
+  sleep = Number(sleep) || 7.7;
+
+  const t = recoveryTier(rec);
+  document.getElementById('s-rec').textContent = rec + '%';
   document.getElementById('s-rec').className = 'val ' + t.color;
-  document.getElementById('s-rhr').textContent = WHOOP.rhr;
-  document.getElementById('s-hrv').textContent = WHOOP.hrv;
-  document.getElementById('s-sleep').textContent = WHOOP.sleep + 'h';
-  document.getElementById('whoop-date').textContent = WHOOP.date;
+  document.getElementById('s-rhr').textContent = Number(WHOOP.rhr) || 70;
+  document.getElementById('s-hrv').textContent = Number(WHOOP.hrv) || 23.7;
+  document.getElementById('s-sleep').textContent = sleep + 'h';
+  document.getElementById('whoop-date').textContent = WHOOP.date || new Date().toISOString().slice(0,10);
   document.getElementById('recovery-tier-text').innerHTML = `<b class="${t.color}">${t.name}</b> — Quest XP multiplier ×${t.bonus}`;
 }
 
@@ -608,27 +651,66 @@ function renderQuests(){
     el.innerHTML = `<div class="card">No quests yet. Sync WHOOP.</div>`;
     return;
   }
-  el.innerHTML = S.quests.map((q,i)=>`
+  el.innerHTML = S.quests.map((q,i)=>{
+    const dmg = Math.round(25 * t.bonus);
+    return `
     <div class="quest ${q.done?'done':''}">
-      <div class="q-left"><b>${q.text}</b><br><small>+${q.xp} XP · boss +25 dmg</small></div>
+      <div class="q-left"><b>${q.text}</b><br><small>+${q.xp} XP · ⚔️ ${dmg} dmg</small></div>
       <button class="btn small" ${q.done?'disabled':''} data-qi="${i}">${q.done?'✓ Done':'Complete'}</button>
     </div>
-  `).join('');
+  `}).join('');
   el.querySelectorAll('button[data-qi]').forEach(btn=>{
     btn.onclick = ()=>{
       const i = +btn.dataset.qi;
       if(S.quests[i].done) return;
       S.quests[i].done = true;
       const gained = S.quests[i].xp;
+
+      // XP gain
       S.xp += gained;
+
+      // --- BOSS DAMAGE ON QUEST COMPLETE ---
+      ensureBossCurrent();
+      const boss = WEEKLY_BOSSES[S.boss_index];
+      const t = recoveryTier(WHOOP.recovery);
+      // Base 25 dmg × recovery tier multiplier (red=1, yellow=2, green=3)
+      const dmg = Math.round(25 * t.bonus);
+      S.boss_hp = Math.max(0, S.boss_hp - dmg);
+      const bossMsg = `⚔️ ${S.quests[i].text} → ${boss.name} -${dmg} HP`;
+      S.boss_log.push(bossMsg);
+      // Keep log trimmed
+      if(S.boss_log.length > 30) S.boss_log = S.boss_log.slice(-30);
+
+      let bossDefeated = false;
+      if(S.boss_hp === 0){
+        S.boss_kills.push(`${S.boss_week_start}: Defeated ${boss.name}`);
+        S.boss_log.push(`🎉 ${boss.name} defeated! +80 XP`);
+        S.xp += 80;
+        bossDefeated = true;
+      }
+
       // checkin streak logic
       checkInToday();
+
+      // Auto-clear chapters when XP threshold met
+      let chapterCleared = null;
+      for(const ch of CHAPTERS){
+        if(!S.chapters_cleared.includes(ch.id) && S.xp >= ch.xp_needed){
+          S.chapters_cleared.push(ch.id);
+          if(!S.zones_unlocked.includes(ch.zone)) S.zones_unlocked.push(ch.zone);
+          chapterCleared = ch;
+        }
+      }
+
       save();
-      toast(`+${gained} XP · ${S.quests[i].text}`);
-      renderQuests();
-      renderChee();
-      renderStory();
-      renderBossMini();
+
+      // Toast with boss damage
+      let toastMsg = `+${gained} XP · ⚔️-${dmg} HP`;
+      if(bossDefeated) toastMsg = `🎉 BOSS DEFEATED! +${gained+80} XP total`;
+      else if(chapterCleared) toastMsg += ` · 📖 Ch.${chapterCleared.id} cleared!`;
+      toast(toastMsg);
+
+      refreshAll();
     };
   });
   updateStreakDisplay();
@@ -677,9 +759,18 @@ function bite(){
   S.chee_form = Math.max(0, (S.chee_form||maxForm) - 1);
   // lose some XP
   S.xp = Math.max(0, S.xp - 25);
+
+  // BOSS HEALS on streak bite
+  ensureBossCurrent();
+  const boss = WEEKLY_BOSSES[S.boss_index];
+  const healAmt = 150;
+  S.boss_hp = Math.min(boss.hp, S.boss_hp + healAmt);
+  S.boss_log.push(`💀 Streak bite! ${boss.name} healed +${healAmt} HP`);
+  if(S.boss_log.length > 30) S.boss_log = S.boss_log.slice(-30);
+
   S.streak = 0;
   S.missed_days = 0;
-  toast('💀 STREAK BITE! Lost chapter progress + Chee devolved!');
+  toast('💀 STREAK BITE! Lost chapter + Chee devolved + Boss healed!');
   save();
   refreshAll();
 }
@@ -745,27 +836,19 @@ function renderBossMini(){
 document.getElementById('attack-btn').onclick = ()=>{
   ensureBossCurrent();
   const questsDone = (S.quests || []).filter(q=>q.done).length;
+  const questsTotal = (S.quests || []).length;
+  const boss = WEEKLY_BOSSES[S.boss_index];
   if(questsDone === 0){
-    toast('Complete daily quests first – they power your attacks!');
+    toast('Complete daily quests to damage ' + boss.name + '!');
+    showView('quests');
     return;
   }
-  const boss = WEEKLY_BOSSES[S.boss_index];
-  const dmg = questsDone * 25;
-  S.boss_hp = Math.max(0, S.boss_hp - dmg);
-  const msg = `⚔️ Hit ${boss.name} for ${dmg} dmg (${questsDone} quests)`;
-  S.boss_log.push(msg);
-  toast(msg);
-  if(S.boss_hp === 0){
-    S.boss_kills.push(`${S.boss_week_start}: Defeated ${boss.name}`);
-    S.boss_log.push(`🎉 ${boss.name} defeated! +80 XP`);
-    S.xp += 80;
-    S.boss_hp = 0;
-    toast('Boss defeated! +80 XP');
+  if(questsDone < questsTotal){
+    toast(`${questsDone}/${questsTotal} quests done — finish the rest for more damage!`);
+    showView('quests');
+    return;
   }
-  save();
-  renderBoss();
-  renderChee();
-  renderStory();
+  toast(`All quests complete! Boss at ${S.boss_hp}/${boss.hp} HP — check back tomorrow 💪`);
 };
 
 // Nav
