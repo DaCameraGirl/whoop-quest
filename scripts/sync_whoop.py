@@ -44,19 +44,55 @@ else:
     token, new_refresh = token_result, None
 
 # Save new refresh_token to GitHub Secrets if rotated (prevents 401 on next run)
+# NEVER print refresh tokens to logs - this is a public repo!
 if new_refresh:
     try:
-        import os
+        import base64
         repo = os.environ.get('GITHUB_REPOSITORY', '')
         gh_token = os.environ.get('GITHUB_TOKEN', '')
         if repo and gh_token and '/' in repo:
-            print(f"[whoop] Refresh token rotated, saving to GitHub Secrets...", file=sys.stderr)
-            # GitHub Secrets API needs sodium sealed_box encryption – for now just WARN
-            # TODO: implement PyNaCl sealed_box or call gh CLI
-            # For now: print the new token so workflow logs capture it (user must manually update secret)
-            print(f"[whoop] NEW_REFRESH_TOKEN={new_refresh}", file=sys.stderr)
-            print(f"[whoop] ⚠️  UPDATE GitHub Secret WHOOP_REFRESH_TOKEN = {new_refresh}", file=sys.stderr)
-            print(f"[whoop] Or the NEXT RUN WILL FAIL WITH 401", file=sys.stderr)
+            print(f"[whoop] Refresh token rotated, updating GitHub Secret...", file=sys.stderr)
+            # Get the repo's public key for secret encryption
+            import urllib.request, json
+            def gh_api(path, method='GET', data=None):
+                body = json.dumps(data).encode() if data else None
+                req = urllib.request.Request(
+                    f'https://api.github.com{path}',
+                    data=body,
+                    headers={
+                        'Authorization': f'token {gh_token}',
+                        'Accept': 'application/vnd.github+json',
+                        'User-Agent': 'whoop-quest-bot'
+                    },
+                    method=method
+                )
+                if data:
+                    req.add_header('Content-Type', 'application/json')
+                with urllib.request.urlopen(req) as r:
+                    return json.loads(r.read()) if r.read else {}
+            # Get public key
+            key_info = gh_api(f'/repos/{repo}/actions/secrets/public-key')
+            key_id = key_info['key_id']
+            public_key_b64 = key_info['key']
+            # Encrypt secret using sodium sealed_box (PyNaCl)
+            try:
+                from nacl import public, encoding
+                pk = public.PublicKey(public_key_b64.encode(), encoding.Base64Encoder())
+                sealed = public.SealedBox(pk)
+                encrypted = sealed.encrypt(new_refresh.encode())
+                encrypted_b64 = base64.b64encode(encrypted).decode()
+                # Update secret
+                gh_api(
+                    f'/repos/{repo}/actions/secrets/WHOOP_REFRESH_TOKEN',
+                    method='PUT',
+                    data={'encrypted_value': encrypted_b64, 'key_id': key_id}
+                )
+                print(f"[whoop] ✅ WHOOP_REFRESH_TOKEN updated in GitHub Secrets", file=sys.stderr)
+            except ImportError:
+                # PyNaCl not available - FAIL CLOSED, do NOT print token
+                print(f"[whoop] ⚠️  Refresh token rotated but PyNaCl not installed - cannot auto-update GitHub Secret", file=sys.stderr)
+                print(f"[whoop] ⚠️  Install pynacl in requirements.txt, or manually rotate via GitHub UI", file=sys.stderr)
+                print(f"[whoop] ⚠️  NEXT RUN WILL FAIL until secret is updated - token NOT printed for security", file=sys.stderr)
     except Exception as e:
         print(f"[whoop] Failed to save refresh_token: {e}", file=sys.stderr)
 
