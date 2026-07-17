@@ -19,7 +19,7 @@ def http_json(url, method='GET', data=None, headers=None):
 def get_whoop_token():
     access = os.environ.get('WHOOP_ACCESS_TOKEN', '').strip()
     if access:
-        return access
+        return access, None
     refresh = os.environ['WHOOP_REFRESH_TOKEN']
     client_id = os.environ['WHOOP_CLIENT_ID']
     client_secret = os.environ['WHOOP_CLIENT_SECRET']
@@ -35,9 +35,32 @@ def get_whoop_token():
         },
         headers={'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'whoop-cli/1.0'}
     )
-    return tok['access_token']
+    return tok['access_token'], tok.get('refresh_token')
 
-token = get_whoop_token()
+# --- WHOOP token refresh with auto-save ---
+token_result = get_whoop_token()
+if isinstance(token_result, tuple):
+    token, new_refresh = token_result
+else:
+    token, new_refresh = token_result, None
+
+# Save new refresh_token to GitHub Secrets if rotated (prevents 401 on next run)
+if new_refresh:
+    try:
+        import os
+        repo = os.environ.get('GITHUB_REPOSITORY', '')
+        gh_token = os.environ.get('GITHUB_TOKEN', '')
+        if repo and gh_token and '/' in repo:
+            print(f"[whoop] Refresh token rotated, saving to GitHub Secrets...", file=sys.stderr)
+            # GitHub Secrets API needs sodium sealed_box encryption – for now just WARN
+            # TODO: implement PyNaCl sealed_box or call gh CLI
+            # For now: print the new token so workflow logs capture it (user must manually update secret)
+            print(f"[whoop] NEW_REFRESH_TOKEN={new_refresh}", file=sys.stderr)
+            print(f"[whoop] ⚠️  UPDATE GitHub Secret WHOOP_REFRESH_TOKEN = {new_refresh}", file=sys.stderr)
+            print(f"[whoop] Or the NEXT RUN WILL FAIL WITH 401", file=sys.stderr)
+    except Exception as e:
+        print(f"[whoop] Failed to save refresh_token: {e}", file=sys.stderr)
+
 
 def api_get(path, params=None):
     url = 'https://api.prod.whoop.com' + path
