@@ -31,7 +31,6 @@ def get_whoop_token():
             'refresh_token': refresh,
             'client_id': client_id,
             'client_secret': client_secret,
-            'scope': 'offline',
         },
         headers={'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'whoop-cli/1.0'}
     )
