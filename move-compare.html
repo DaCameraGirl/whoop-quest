@@ -62,10 +62,10 @@ td { border-bottom: 1px solid #222; }
 </div>
 
 <div class="chart-wrap">
-  <canvas id="recChart"></canvas>
+  <div style="position:relative;height:320px"><canvas id="recChart"></canvas></div>
 </div>
 <div class="chart-wrap">
-  <canvas id="hrvChart"></canvas>
+  <div style="position:relative;height:320px"><canvas id="hrvChart"></canvas></div>
 </div>
 
 <div class="card" style="grid-column: 1 / -1;">
@@ -100,7 +100,11 @@ fetch('whoop_data.json').then(r=>r.json()).then(data => {
 
   const commonOpts = {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: '#ccc' } } },
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: '#ccc' } },
+      tooltip: { enabled: true, mode: 'index', intersect: false }
+    },
     scales: {
       x: { ticks: { color: '#888', maxRotation: 45 }, grid: { color: '#222' } },
       y: { ticks: { color: '#888' }, grid: { color: '#222' } }
@@ -118,7 +122,9 @@ fetch('whoop_data.json').then(r=>r.json()).then(data => {
         borderColor: '#4ade80',
         backgroundColor: 'rgba(74,222,128,0.1)',
         tension: 0.3,
-        pointRadius: 3,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+        pointHitRadius: 20,
         fill: true
       }]
     },
@@ -131,8 +137,8 @@ fetch('whoop_data.json').then(r=>r.json()).then(data => {
     data: {
       labels,
       datasets: [
-        { label: 'HRV (ms)', data: hrv, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', tension: 0.3, yAxisID: 'y' },
-        { label: 'RHR (bpm)', data: rhr, borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.08)', tension: 0.3, yAxisID: 'y1' }
+        { label: 'HRV (ms)', data: hrv, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', tension: 0.3, yAxisID: 'y', pointRadius: 4, pointHoverRadius: 7, pointHitRadius: 20 },
+        { label: 'RHR (bpm)', data: rhr, borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.08)', tension: 0.3, yAxisID: 'y1', pointRadius: 4, pointHoverRadius: 7, pointHitRadius: 20 }
       ]
     },
     options: {...commonOpts,
