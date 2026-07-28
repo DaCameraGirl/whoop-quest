@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHOOP — Before vs After Move</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+body { font-family: system-ui, -apple-system, sans-serif; background: #111; color: #eee; margin: 0; padding: 24px; }
+h1 { margin: 0 0 4px 0; font-size: 1.5rem; }
+.sub { color: #999; margin-bottom: 24px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.card { background: #1a1a1a; border-radius: 12px; padding: 20px; }
+.card h2 { margin: 0 0 12px 0; font-size: 1.1rem; }
+.stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #2a2a2a; }
+.stat:last-child { border: none; }
+.stat .label { color: #999; }
+.stat .val { font-weight: 600; }
+.up { color: #4ade80; }
+.down { color: #f87171; }
+.chart-wrap { background: #1a1a1a; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+canvas { max-height: 320px; }
+@media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th, td { padding: 6px 10px; text-align: left; }
+th { color: #999; font-weight: 500; border-bottom: 1px solid #333; }
+td { border-bottom: 1px solid #222; }
+.badge { padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+.badge-green { background: #14532d; color: #4ade80; }
+.badge-yellow { background: #713f12; color: #fde047; }
+.badge-red { background: #7f1d1d; color: #fca5a5; }
+.move-line { background: #2a1a3a !important; }
+.move-line td { font-weight: 600; color: #c084fc; }
+</style>
+</head>
+<body>
+
+<h1>💚 WHOOP — Before vs After Move</h1>
+<p class="sub">Angela Hudson &nbsp;·&nbsp; Jun 20 – Jul 27, 2026 &nbsp;·&nbsp; Moved Jul 12 (Ladson, SC → Extended stay)</p>
+
+<div class="grid">
+  <div class="card">
+    <h2>📍 Before Move — Ladson, SC</h2>
+    <div class="stat"><span class="label">Days tracked</span><span class="val">19</span></div>
+    <div class="stat"><span class="label">Recovery avg</span><span class="val">49.2%</span></div>
+    <div class="stat"><span class="label">Recovery best</span><span class="val">93% (Jun 26)</span></div>
+    <div class="stat"><span class="label">Recovery worst</span><span class="val">14% (Jul 7)</span></div>
+    <div class="stat"><span class="label">HRV avg</span><span class="val">26.1 ms</span></div>
+    <div class="stat"><span class="label">RHR avg</span><span class="val">75.9 bpm</span></div>
+    <div class="stat"><span class="label">Sleep avg</span><span class="val">6.7 h</span></div>
+  </div>
+  <div class="card">
+    <h2>🏨 After Move — Extended stay</h2>
+    <div class="stat"><span class="label">Days tracked</span><span class="val">14</span></div>
+    <div class="stat"><span class="label">Recovery avg</span><span class="val">56.2% <span class="up">+7.0%</span></span></div>
+    <div class="stat"><span class="label">Recovery best</span><span class="val">82% (Jul 27)</span></div>
+    <div class="stat"><span class="label">Recovery worst</span><span class="val">28% (Jul 12)</span></div>
+    <div class="stat"><span class="label">HRV avg</span><span class="val">25.2 ms <span class="down">-0.9</span></span></div>
+    <div class="stat"><span class="label">RHR avg</span><span class="val">71.6 bpm <span class="up">-4.3</span></span></div>
+    <div class="stat"><span class="label">Sleep avg</span><span class="val">7.0 h <span class="up">+0.3h</span></span></div>
+  </div>
+</div>
+
+<div class="chart-wrap">
+  <canvas id="recChart"></canvas>
+</div>
+<div class="chart-wrap">
+  <canvas id="hrvChart"></canvas>
+</div>
+
+<div class="card" style="grid-column: 1 / -1;">
+  <h2>📋 All 33 Days</h2>
+  <table id="dataTable">
+    <thead><tr><th>Date</th><th>Recovery</th><th>HRV</th><th>RHR</th><th>Sleep</th><th>Location</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+fetch('whoop_data.json').then(r=>r.json()).then(data => {
+  const moveDate = '2026-07-12';
+  const labels = data.map(d => d.date.slice(5));
+  const rec = data.map(d => d.rec);
+  const hrv = data.map(d => d.hrv);
+  const rhr = data.map(d => d.rhr);
+  const moveIdx = data.findIndex(d => d.date >= moveDate);
+  
+  const vline = { id:'vline', afterDatasetsDraw(chart) {
+    const {ctx, chartArea:{top,bottom}, scales:{x}} = chart;
+    if (moveIdx < 0) return;
+    const px = x.getPixelForValue(moveIdx);
+    ctx.save();
+    ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(px, top); ctx.lineTo(px, bottom); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#c084fc'; ctx.font = 'bold 11px system-ui';
+    ctx.fillText('📦 MOVED', px+4, top+14);
+    ctx.restore();
+  }};
+
+  const commonOpts = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#ccc' } } },
+    scales: {
+      x: { ticks: { color: '#888', maxRotation: 45 }, grid: { color: '#222' } },
+      y: { ticks: { color: '#888' }, grid: { color: '#222' } }
+    }
+  };
+
+  new Chart(document.getElementById('recChart'), {
+    type: 'line',
+    plugins: [vline],
+    data: {
+      labels,
+      datasets: [{
+        label: 'Recovery %',
+        data: rec,
+        borderColor: '#4ade80',
+        backgroundColor: 'rgba(74,222,128,0.1)',
+        tension: 0.3,
+        pointRadius: 3,
+        fill: true
+      }]
+    },
+    options: {...commonOpts, plugins: {...commonOpts.plugins, title: {display:true, text:'Recovery % — Before vs After Move', color:'#eee'}}}
+  });
+
+  new Chart(document.getElementById('hrvChart'), {
+    type: 'line',
+    plugins: [vline],
+    data: {
+      labels,
+      datasets: [
+        { label: 'HRV (ms)', data: hrv, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', tension: 0.3, yAxisID: 'y' },
+        { label: 'RHR (bpm)', data: rhr, borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.08)', tension: 0.3, yAxisID: 'y1' }
+      ]
+    },
+    options: {...commonOpts,
+      plugins: {...commonOpts.plugins, title: {display:true, text:'HRV & RHR — Before vs After Move', color:'#eee'}},
+      scales: {
+        ...commonOpts.scales,
+        y: { type:'linear', position:'left', ticks:{color:'#60a5fa'}, grid:{color:'#222'}},
+        y1:{ type:'linear', position:'right', ticks:{color:'#f87171'}, grid:{drawOnChartArea:false}}
+      }
+    }
+  });
+
+  // Table
+  const tbody = document.querySelector('#dataTable tbody');
+  data.forEach(d => {
+    const isMoveDay = d.date === moveDate;
+    const loc = d.date < moveDate ? '📍 Ladson, SC' : '🏨 Extended stay';
+    const badge = d.rec >= 67 ? 'badge-green' : d.rec >= 34 ? 'badge-yellow' : 'badge-red';
+    const tr = document.createElement('tr');
+    if (isMoveDay) tr.className = 'move-line';
+    tr.innerHTML = `
+      <td>${d.date}${isMoveDay ? ' 📦' : ''}</td>
+      <td><span class="badge ${badge}">${d.rec}%</span></td>
+      <td>${d.hrv?.toFixed(1) ?? '—'} ms</td>
+      <td>${d.rhr ?? '—'} bpm</td>
+      <td>${d.sleep ? d.sleep.toFixed(1)+'h' : '—'}</td>
+      <td>${loc}</td>`;
+    tbody.appendChild(tr);
+  });
+});
+</script>
+</body>
+</html>
