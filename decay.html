@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHOOP // DECAY</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Fragment+Mono:ital@0;1&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0b0b;color:#d4d4d4;font-family:'Fragment Mono',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:3.2rem;letter-spacing:-.02em;color:#e8e8e8;margin-bottom:4px}
+.sub{color:#888;font-size:.8rem;margin-bottom:36px;letter-spacing:.04em}
+.card{background:#141414;border:1px solid #2a2a2a;border-radius:14px;padding:28px;max-width:580px;width:100%;margin-bottom:18px}
+.card h2{font-family:'Fraunces',serif;font-size:1.35rem;margin-bottom:14px;color:#e8e8e8}
+.card p{line-height:1.7;font-size:.88rem;color:#b8b8b8;margin-bottom:12px}
+.riddle{font-family:'Fraunces',serif;font-style:italic;font-size:1.05rem;color:#d4c5a0;margin:18px 0;line-height:1.6}
+input,select{background:#0f0f0f;border:1px solid #333;color:#d4d4d4;font-family:'Fragment Mono',monospace;font-size:.85rem;padding:10px 14px;border-radius:8px;width:100%;margin-bottom:10px}
+input:focus,select:focus{outline:none;border-color:#666}
+button{background:#1e1e1e;border:1px solid #444;color:#d4d4d4;font-family:'Fragment Mono',monospace;font-size:.82rem;padding:11px 20px;border-radius:8px;cursor:pointer;transition:.15s;width:100%;margin-top:4px}
+button:hover{background:#262626;border-color:#666}
+button:active{transform:scale(.98)}
+.row{display:flex;gap:10px}
+.row > *{flex:1}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.stat-box{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:12px;text-align:center}
+.stat-box .lbl{font-size:.68rem;color:#888;text-transform:uppercase;letter-spacing:.08em}
+.stat-box .val{font-family:'Fraunces',serif;font-size:1.5rem;margin-top:2px}
+.green{color:#7db87d}.yellow{color:#c9b458}.red{color:#c45c5c}
+.horror{border-color:#5a2525;background:#1a1111}
+.horror h2{color:#d88}
+.safe{border-color:#25452a;background:#111a13}
+.safe h2{color:#7db87d}
+.warn{border-color:#4a3a1a;background:#1a1610}
+.warn h2{color:#c9b458}
+.divider{height:1px;background:#2a2a2a;margin:18px 0}
+.small{font-size:.75rem;color:#777}
+a{color:#999}
+.hidden{display:none}
+.fade-in{animation:fade .5s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.age-box{background:#0f0f0f;border:1px solid #333;border-radius:8px;padding:16px;text-align:center;margin:14px 0}
+.age-big{font-family:'Fraunces',serif;font-size:2.4rem;color:#c45c5c}
+.age-lbl{font-size:.7rem;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+footer{margin-top:30px;color:#555;font-size:.72rem;text-align:center}
+</style>
+</head>
+<body>
+
+<h1>DECAY</h1>
+<p class="sub">a WHOOP-powered body horror riddle · Angela Hudson · Jul 2026</p>
+
+<!-- STAGE 1: pick a date -->
+<div class="card" id="stage1">
+  <h2>📅 Pick your night</h2>
+  <p>Every night leaves a trace on your body. Choose a date from Angela's WHOOP log — your stats will determine what the mirror shows you.</p>
+  <select id="dateSelect"><option value="">— loading WHOOP data —</option></select>
+  <p class="small" style="margin-top:6px">or enter stats manually:</p>
+  <div class="row">
+    <input type="number" id="manRec" placeholder="Recovery %" min="0" max="100">
+    <input type="number" id="manHrv" placeholder="HRV ms" min="0" step="0.1">
+  </div>
+  <div class="row">
+    <input type="number" id="manRhr" placeholder="RHR bpm" min="30" max="200">
+    <input type="number" id="manSleep" placeholder="Sleep hrs" min="0" max="24" step="0.1">
+  </div>
+  <button onclick="enterMirror()">Enter the mirror →</button>
+</div>
+
+<!-- STAGE 2: the riddle -->
+<div class="card hidden" id="stage2">
+  <h2>🪞 The Mirror</h2>
+  <div class="stat-grid" id="yourStats"></div>
+  <div class="riddle" id="riddleText"></div>
+  <p class="small">Answer the riddle to see what your body became that night.</p>
+  <input type="text" id="riddleAnswer" placeholder="your answer…" autocomplete="off">
+  <button onclick="solveRiddle()">Reveal →</button>
+  <p class="small" id="riddleHint" style="margin-top:8px;color:#666"></p>
+</div>
+
+<!-- STAGE 3: horror story -->
+<div class="card hidden" id="stage3">
+  <h2 id="storyTitle"></h2>
+  <div id="storyBody"></div>
+  <div class="divider"></div>
+  <button onclick="resetGame()">← Try another night</button>
+  <p class="small" style="margin-top:12px;text-align:center">
+    <a href="move-compare.html">← back to WHOOP recovery chart</a>
+  </p>
+</div>
+
+<footer>
+  built with real WHOOP data · DaCameraGirl / Cheetah 🐆 · Jul 2026<br>
+  <a href="https://github.com/DaCameraGirl/whoop-quest" style="color:#555">github.com/DaCameraGirl/whoop-quest</a>
+</footer>
+
+<script>
+let WHOOP = [];
+let current = null;
+
+// load WHOOP data
+fetch('whoop_data.json').then(r=>r.json()).then(data => {
+  WHOOP = data.filter(d => d.rec != null);
+  const sel = document.getElementById('dateSelect');
+  sel.innerHTML = '<option value="">— select a night —</option>' +
+    WHOOP.map((d,i) => `<option value="${i}">${d.date} · ${d.rec}% recovery · ${d.hrv?.toFixed(1)??'—'} HRV · ${d.sleep ? d.sleep.toFixed(1)+'h sleep' : 'no sleep data'}</option>`).join('');
+}).catch(()=> {
+  // fallback: hardcoded if json fails
+  WHOOP = [
+    {date:'2026-06-26',rec:93,hrv:44.7,rhr:73,sleep:6.6},
+    {date:'2026-07-06',rec:83,hrv:33.8,rhr:76,sleep:8.8},
+    {date:'2026-07-15',rec:77,hrv:38.4,rhr:72,sleep:5.7},
+    {date:'2026-07-27',rec:82,hrv:29.2,rhr:70,sleep:null},
+    {date:'2026-07-04',rec:27,hrv:14.9,rhr:77,sleep:5.0},
+    {date:'2026-07-07',rec:14,hrv:27.6,rhr:71,sleep:1.5},
+    {date:'2026-06-28',rec:15,hrv:11.1,rhr:81,sleep:4.9},
+  ];
+  const sel = document.getElementById('dateSelect');
+  sel.innerHTML = '<option value="">— select a night —</option>' +
+    WHOOP.map((d,i) => `<option value="${i}">${d.date} · ${d.rec}%</option>`).join('');
+});
+
+// Average "healthy adult" baselines (WHOOP population averages, age ~30 female)
+const AVG = { rec: 55, hrv: 50, rhr: 62, sleep: 7.5 };
+
+// --- RIDDLES ---
+// each riddle's answer is a number or word related to the stats
+// wrong answers still reveal the story, just with a scarier flavor
+const RIDDLES = [
+  {
+    q: (s) => `I tick when you rest, I falter when you don't.<br>Doctors call me variability — yours was <b>${s.hrv?.toFixed(1) ?? '—'}</b>.<br>The average heart dances at 50.<br><b>How many beats of life did your heart skip that night?</b>`,
+    a: (s) => Math.round(AVG.hrv - (s.hrv||0)),
+    hint: "Average HRV minus your HRV, rounded.",
+    accept: (ans, s) => {
+      const n = parseFloat(ans);
+      const target = Math.round(AVG.hrv - (s.hrv||0));
+      return Math.abs(n - target) <= 2;
+    }
+  },
+  {
+    q: (s) => `You closed your eyes for <b>${s.sleep ? s.sleep.toFixed(1)+' hours' : ' — no one knows how long'}</b>.<br>A healthy body wants 7.5.<br><b>How many hours of aging did you borrow from tomorrow?</b>`,
+    a: (s) => s.sleep ? (AVG.sleep - s.sleep).toFixed(1) : '?',
+    hint: "7.5 minus your sleep hours.",
+    accept: (ans, s) => {
+      if (!s.sleep) return ans.trim() === '?' || ans.toLowerCase().includes('unknown');
+      const n = parseFloat(ans);
+      const target = AVG.sleep - s.sleep;
+      return Math.abs(n - target) < 0.3;
+    }
+  },
+  {
+    q: (s) => `Your recovery was <b>${s.rec}%</b>.<br>The mirror says 55% is "normal."<br><b>How far below the surface were you?</b>`,
+    a: (s) => AVG.rec - s.rec,
+    hint: "55 minus your recovery percentage.",
+    accept: (ans, s) => {
+      const n = parseFloat(ans);
+      return Math.abs(n - (AVG.rec - s.rec)) <= 2;
+    }
+  },
+  {
+    q: (s) => `Your resting heart beat <b>${s.rhr} times per minute</b> while you slept.<br>A calm heart rests at 62.<br><b>How many extra beats did your heart steal from your lifespan that night?</b><br><span style="font-size:.78em;color:#888">(per hour — multiply by 60)</span>`,
+    a: (s) => (s.rhr - AVG.rhr) * 60,
+    hint: "Your RHR minus 62, times 60 (beats per hour).",
+    accept: (ans, s) => {
+      const n = parseFloat(ans);
+      const target = (s.rhr - AVG.rhr) * 60;
+      return Math.abs(n - target) <= 30;
+    }
+  },
+  {
+    q: (s) => {
+      const debt = s.sleep ? Math.max(0, AVG.sleep - s.sleep) : 3;
+      return `They say one sleepless night ages you a full day.<br>You slept <b>${s.sleep ? s.sleep.toFixed(1)+' hours' : '— the band found nothing'}</b>.<br><b>How many hours short were you of a full night's resurrection?</b>`;
+    },
+    a: (s) => s.sleep ? (AVG.sleep - s.sleep).toFixed(1) : 'unknown',
+    hint: "7.5 minus your sleep. Or 'unknown' if no sleep data.",
+    accept: (ans, s) => {
+      if (!s.sleep) return ans.toLowerCase().includes('unknown') || ans.trim() === '?';
+      const n = parseFloat(ans);
+      return Math.abs(n - (AVG.sleep - s.sleep)) < 0.3;
+    }
+  },
+];
+
+function enterMirror() {
+  const sel = document.getElementById('dateSelect').value;
+  let s;
+  if (sel !== '') {
+    s = WHOOP[parseInt(sel)];
+  } else {
+    // manual entry
+    const rec = parseFloat(document.getElementById('manRec').value);
+    const hrv = parseFloat(document.getElementById('manHrv').value);
+    const rhr = parseFloat(document.getElementById('manRhr').value);
+    const sleep = parseFloat(document.getElementById('manSleep').value);
+    if (isNaN(rec)) { alert('Enter a recovery % or pick a date!'); return; }
+    s = { date:'custom', rec, hrv: isNaN(hrv)?null:hrv, rhr: isNaN(rhr)?null:rhr, sleep: isNaN(sleep)?null:sleep };
+  }
+  current = s;
+  
+  // pick a riddle that matches available data
+  let pool = RIDDLES.filter((_,i) => {
+    if (i===0 || i===2) return true; // rec/hrv riddles always work if rec exists
+    if (i===1 || i===4) return s.sleep != null;
+    if (i===3) return s.rhr != null;
+    return true;
+  });
+  current.riddle = pool[Math.floor(Math.random() * pool.length)];
+
+  // show stats
+  const badge = s.rec >= 67 ? 'green' : s.rec >= 34 ? 'yellow' : 'red';
+  document.getElementById('yourStats').innerHTML = `
+    <div class="stat-box"><div class="lbl">Recovery</div><div class="val ${badge}">${s.rec}%</div></div>
+    <div class="stat-box"><div class="lbl">HRV</div><div class="val">${s.hrv?.toFixed(1) ?? '—'} ms</div></div>
+    <div class="stat-box"><div class="lbl">RHR</div><div class="val">${s.rhr ?? '—'} bpm</div></div>
+    <div class="stat-box"><div class="lbl">Sleep</div><div class="val">${s.sleep ? s.sleep.toFixed(1)+'h' : '—'}</div></div>
+  `;
+  document.getElementById('riddleText').innerHTML = current.riddle.q(s);
+  document.getElementById('riddleHint').textContent = '';
+  document.getElementById('riddleAnswer').value = '';
+
+  document.getElementById('stage1').classList.add('hidden');
+  document.getElementById('stage2').classList.remove('hidden');
+  document.getElementById('stage2').classList.add('fade-in');
+  document.getElementById('riddleAnswer').focus();
+
+  // hint after 12s
+  setTimeout(() => {
+    if (!document.getElementById('stage2').classList.contains('hidden')) {
+      document.getElementById('riddleHint').textContent = '💡 Hint: ' + current.riddle.hint;
+    }
+  }, 12000);
+}
+
+function solveRiddle() {
+  const ans = document.getElementById('riddleAnswer').value.trim();
+  if (!ans) { document.getElementById('riddleAnswer').focus(); return; }
+  const correct = current.riddle.accept(ans, current);
+  showStory(current, correct);
+}
+
+document.getElementById('riddleAnswer').addEventListener('keydown', e => {
+  if (e.key === 'Enter') solveRiddle();
+});
+
+// --- HORROR STORY GENERATOR ---
+function showStory(s, riddleCorrect) {
+  const card = document.getElementById('stage3');
+  const title = document.getElementById('storyTitle');
+  const body = document.getElementById('storyBody');
+
+  // biological age penalty calculation
+  // based on real research approximations:
+  // - each hour of sleep debt ≈ 0.15 days biological aging
+  // - low HRV (< 25ms) ≈ chronic stress aging
+  // - high RHR (>75) ≈ cardiovascular strain
+  // - low recovery (<34%) ≈ systemic inflammation
+  let ageDebt = 0;
+  let causes = [];
+  if (s.sleep != null) {
+    const sleepDebt = Math.max(0, AVG.sleep - s.sleep);
+    ageDebt += sleepDebt * 0.8; // days
+    if (sleepDebt > 2) causes.push(`${sleepDebt.toFixed(1)}h sleep debt`);
+  } else {
+    ageDebt += 2.5;
+    causes.push(`untracked sleep — the band couldn't find you`);
+  }
+  if (s.hrv != null && s.hrv < 25) { ageDebt += (25 - s.hrv) * 0.12; causes.push(`HRV crashed to ${s.hrv.toFixed(1)} ms`); }
+  if (s.rhr != null && s.rhr > 70) { ageDebt += (s.rhr - 70) * 0.08; causes.push(`RHR ${s.rhr} bpm — your heart wouldn't rest`); }
+  if (s.rec < 34) { ageDebt += (34 - s.rec) * 0.06; causes.push(`${s.rec}% recovery — your body gave up`); }
+  else if (s.rec < 55) { ageDebt += (55 - s.rec) * 0.02; }
+
+  const ageDays = Math.max(0.1, ageDebt);
+  const ageHours = Math.round(ageDays * 24);
+
+  // story tier
+  let tier, tClass, tTitle, tText;
+  if (s.rec >= 67 && (s.hrv||0) >= 30 && (s.sleep||0) >= 6.5) {
+    // GOOD — you survived
+    tier = 'safe'; tClass = 'safe';
+    tTitle = '🌿 You woke up the same age';
+    tText = `
+<p>You stand in front of the mirror on the morning of <b>${s.date}</b>. Your skin is yours. Your eyes are clear.</p>
+<p>Recovery <b>${s.rec}%</b>. HRV <b>${s.hrv?.toFixed(1) ?? '—'} ms</b>. Resting heart rate <b>${s.rhr ?? '—'} bpm</b>. ${s.sleep ? `You slept <b>${s.sleep.toFixed(1)} hours</b>.` : `Sleep data missing — but your body found rest anyway.`}</p>
+<p>Compared to the average body — recovery 55%, HRV 50 ms, RHR 62 bpm, 7.5h sleep — you held your ground. Your cells repaired. Your brain flushed its waste. Telomeres held.</p>
+<p><b>You did not age last night. You healed.</b></p>
+<p style="color:#7db87d">The mirror shows you exactly who you are. Nothing taken. Nothing added. Just you — alive, recovering, real.</p>
+<p class="small" style="margin-top:16px">Biological age debt: <b>~${ageHours < 1 ? '&lt;1 hour' : ageHours + ' hours'}</b> · Effectively zero. Your body forgave you.</p>
+`;
+  } else if (s.rec >= 34) {
+    // YELLOW — creeping decay
+    tier = 'warn'; tClass = 'warn';
+    tTitle = '🥀 Something shifted';
+    tText = `
+<p>You wake up on <b>${s.date}</b> and the mirror is… wrong. Not dramatically. Subtly. Like a photo taken a week later than you expected.</p>
+<p>Recovery <b>${s.rec}%</b> — yellow zone. Your body tried. HRV <b>${s.hrv?.toFixed(1) ?? '—'} ms</b> — your nervous system is tired. RHR <b>${s.rhr ?? '—'} bpm</b> — your heart worked overtime while you slept. ${s.sleep ? `Sleep <b>${s.sleep.toFixed(1)}h</b> — not enough to fully repair.` : `Sleep data missing. Did you even sleep? Does the band remember? Do you?`}</p>
+<p>The average body recovers at 55%, HRV 50 ms, RHR 62 bpm, 7.5h sleep. You were below that line in ${causes.length} ways:</p>
+<ul style="margin:8px 0 12px 20px;color:#c9b458;font-size:.82rem">${causes.map(c=>`<li>${c}</li>`).join('')}</ul>
+<p>Your cells divided overnight — as cells do — but without enough deep sleep to repair the telomere caps cleanly. Microscopic fraying. Invisible today. Cumulative forever.</p>
+<p><b>You aged approximately ${ageDays.toFixed(1)} days in one night.</b> Not years. Not decades. Just… a little extra. A tax. The kind that compounds.</p>
+<p style="color:#c9b458">The mirror shows a face that's yours, but tired in a way that won't wash off. Yet.</p>
+<p class="small" style="margin-top:16px">Biological age debt: <b>~${ageHours} hours (~${ageDays.toFixed(1)} days)</b> · Recoverable with 2-3 good nights.</p>
+`;
+  } else {
+    // RED — full body horror
+    tier = 'horror'; tClass = 'horror';
+    tTitle = '💀 The mirror lied about your age';
+    tText = `
+<p><b>${s.date}.</b> You don't recognize the thing in the mirror.</p>
+<p>Recovery <b>${s.rec}%</b> — red zone. System failure. Your body did not recover. It <i>survived</i>. HRV <b>${s.hrv?.toFixed(1) ?? '—'} ms</b> — your nervous system is screaming in a frequency you can't hear. RHR <b>${s.rhr ?? '—'} bpm</b> — your heart hammered all night like something was chasing you in your sleep. ${s.sleep ? `Sleep <b>${s.sleep.toFixed(1)}h</b> — ${s.sleep < 3 ? 'that is not sleep, that is unconsciousness with extra steps' : 'not enough to cross the repair threshold'}.` : `Sleep data: <b>MISSING</b>. The band lost you. Where were you?`}</p>
+<p>A healthy body — recovery 55%, HRV 50 ms, RHR 62 bpm, 7.5h sleep — would have rebuilt itself. Yours cannibalized itself instead.</p>
+<p>Cortisol flooded your bloodstream for ${s.sleep ? Math.round((7.5 - (s.sleep||0)) * 60) + ' extra minutes' : 'hours uncounted'}. Cortisol eats collagen. Collagen is what keeps your skin from sagging. Your face, right now, in this mirror, is <b>older than it was yesterday morning</b> — measurably, biologically, permanently.</p>
+<p>Your telomeres — the little plastic caps on the ends of your chromosomes that count down your lifespan — shortened last night without full repair. Every cell in your body is now <b>one division closer to senescence</b> than it should be.</p>
+<ul style="margin:12px 0 12px 20px;color:#d88;font-size:.82rem">${causes.map(c=>`<li>${c}</li>`).join('')}</ul>
+<p><b>You aged approximately ${ageDays.toFixed(1)} days in a single night.</b> That's ${ageHours} hours of biological decay compressed into ${s.sleep ? s.sleep.toFixed(1)+' hours of broken sleep' : 'one lost night'}.</p>
+<p style="color:#d88">The thing in the mirror blinks when you blink. For now. Keep doing this — the red nights stacking up, the sleep debt compounding, the HRV cratering — and one morning the mirror will blink first.</p>
+<p style="color:#d88;font-style:italic">Sleep. Please. Before the mirror stops pretending to be you.</p>
+<p class="small" style="margin-top:16px">Biological age debt: <b>~${ageHours} hours (~${ageDays.toFixed(1)} days)</b> · ${ageDays > 3 ? 'CRITICAL — multiple recovery nights needed' : 'Recoverable with 3-5 green nights and real sleep.'}</p>
+`;
+  }
+
+  // riddle result flavor
+  const riddleFlavor = riddleCorrect
+    ? `<p style="color:#7db87d;font-size:.82rem;margin-bottom:12px">✓ You solved the mirror's riddle. It showed you the truth willingly.</p>`
+    : `<p style="color:#c45c5c;font-size:.82rem;margin-bottom:12px">✗ Wrong answer. The mirror showed you anyway — but it took something extra for the lie.</p>`;
+
+  card.className = 'card fade-in ' + tClass;
+  title.textContent = tTitle;
+  body.innerHTML = riddleFlavor + tText + `
+    <div class="age-box" style="border-color:${tier==='safe'?'#25452a':tier==='warn'?'#4a3a1a':'#5a2525'}">
+      <div class="age-big" style="color:${tier==='safe'?'#7db87d':tier==='warn'?'#c9b458':'#c45c5c'}">+${ageDays.toFixed(1)} days</div>
+      <div class="age-lbl">biological age debt · ${s.date}</div>
+    </div>
+    <p class="small" style="text-align:center;color:#666">
+      Recovery ${s.rec}% · HRV ${s.hrv?.toFixed(1) ?? '—'} ms · RHR ${s.rhr ?? '—'} bpm · Sleep ${s.sleep ? s.sleep.toFixed(1)+'h' : '—'}<br>
+      vs. avg adult: 55% / 50 ms / 62 bpm / 7.5h
+    </p>
+  `;
+
+  document.getElementById('stage2').classList.add('hidden');
+  card.classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function resetGame() {
+  document.getElementById('stage3').classList.add('hidden');
+  document.getElementById('stage1').classList.remove('hidden');
+  document.getElementById('stage1').classList.add('fade-in');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>
